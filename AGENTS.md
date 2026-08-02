@@ -21,11 +21,12 @@
 
 1. Read the relevant profile in `athletes/` (goals, constraints, PBs, anchors).
 2. Read recent entries in `history/` (verbatim athlete feedback).
-3. Read the current plan in `plans/` (if any).
-4. Read relevant material in `library/` and `research/`.
-5. Confirm you have enough tailored info (see Key goal). If not, stop and ask.
-6. Follow sound sports science (progressive load, recovery, injury and illness flags, intensity distribution). Respect red flags already recorded in the athlete profile, history, or archived plans (e.g. arrhythmia, persistent high HR).
-7. Once the athlete is on sustainable mileage, actively track **macrocycle timing**: when the current block should end, when to peak for a race, and when to insert rest or transition weeks. Do not wait for the athlete to ask — flag upcoming block changes in plans and in discussion.
+3. If present, read `.cache/intervals/<YYYY-MM>/month.md` for recent completed load (run/ride km, sessions). Cache is gitignored and may be missing on a fresh clone — run `uv run fetch-activities YYYY-MM` first (after `uv sync`). Still use `history/` for body-feel and constraints; the cache is load evidence only.
+4. Read the current week plan in `plans/` (`*-week.yaml`, and generated `.md` if useful).
+5. Read relevant material in `library/` and `research/`.
+6. Confirm you have enough tailored info (see Key goal). If not, stop and ask.
+7. Follow sound sports science (progressive load, recovery, injury and illness flags, intensity distribution). Respect red flags already recorded in the athlete profile, history, or prior week plans in `plans/` (e.g. arrhythmia, persistent high HR).
+8. Once the athlete is on sustainable mileage, actively track **macrocycle timing**: when the current block should end, when to peak for a race, and when to insert rest or transition weeks. Do not wait for the athlete to ask — flag upcoming block changes in plans and in discussion.
 
 ## Periodization (blocks, peak, rest)
 
@@ -42,10 +43,12 @@
 
 ## Plans
 
-- Base every plan on [`plans/TEMPLATE.md`](plans/TEMPLATE.md).
-- The **current** plan always lives directly in `plans/` (not nested).
-- When replacing a plan, move the previous file into `plans/archive/` with a clear dated name.
-- Date plans via filename and/or frontmatter (`generated_on`, period covered). Use `scripts/gmt_now.py` for GMT date/time tags.
+- **Source of truth:** `plans/YYYY-MM-DD-week.yaml` (Monday date). Author from [`templates/TEMPLATE.yaml`](templates/TEMPLATE.yaml).
+- Render readable markdown: `uv run render-week-plan` → `plans/YYYY-MM-DD-week.md` (generated; do not hand-edit as source).
+- Keep all week plans flat under `plans/` — do not move superseded weeks. Current week = newest `*-week.yaml` by Monday date in the filename.
+- [`plans/archive/`](plans/archive/) is for legacy/reference notes only (old plans, zones, examples) — not part of the weekly workflow.
+- Date plans via filename (`week_start`) and YAML fields (`generated_on`, `updated_at_gmt`). Use `uv run gmt-now` for GMT tags.
+- Push to Intervals/Garmin: `uv run update-weekly-plan` (reads YAML `days` — runs and simple `bike_min`/`bike_km` Rides). Use `--intervals-only` for quality run sessions only. Never updates calendar days before today.
 
 ## History
 
@@ -67,7 +70,7 @@
 ## Dating
 
 - Date-stamp plans, history entries, and saved research (filenames and/or frontmatter) so past information can inform future training.
-- Prefer GMT/UTC from `python3 scripts/gmt_now.py` when tagging.
+- Prefer GMT/UTC from `uv run gmt-now` when tagging.
 
 ## Images
 

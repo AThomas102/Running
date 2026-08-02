@@ -1,0 +1,126 @@
+# Weekly plan template — copy to plans/YYYY-MM-DD-week.yaml (Monday date).
+# Then: uv run render-week-plan
+# Upload: uv run update-weekly-plan
+#
+# run_kind: easy | long | interval | rest
+# bike: none | commute | easy  (soft flag for also-column; commute/easy OK without a planned Ride)
+# bike_min / bike_km: optional simple Ride length to upload (prefer bike_min; no bike intervals)
+# bike_name, bike_start_time, bike_description: optional Ride overrides
+# Intervals/Garmin: runs with run_kind in {easy,long,interval} and run_km > 0;
+#                   rides when bike_min > 0 or bike_km > 0.
+# Use Z2 HR / intensity=warmup (not bare Z2) in run description for Garmin steps.
+
+week_start: YYYY-MM-DD
+generated_on: YYYY-MM-DD
+updated_at_gmt: YYYY-MM-DDThh:mm:ssZ
+athlete: athletes/<name>.md
+goal: ""
+based_on_history:
+  - history/YYYY-MM-DD-....md
+research_used:
+  - research/...
+rationale: |
+  Why this plan fits current load tolerance, goals, and constraints.
+summary_title: "Day Month (short note)"
+run_total_km: 0
+context: |
+  Latest history and how it shapes this week.
+watch_fors:
+  - "..."
+key_sessions: |
+  ### Easy runs
+
+  Conversational. Finish wanting a bit more.
+
+  ### Long / quality
+
+  Detail paces, recoveries, purpose.
+strength_and_recovery: |
+  - S&C Mon + Thu
+  - Easy commute bike OK
+path_after: |
+  What comes next if this week goes well / if foot flares.
+evaluation_notes: |
+  How to judge the week before the next update.
+days:
+  - date: YYYY-MM-DD
+    dow: Mon
+    run_km: 12
+    run_kind: easy
+    run_name: "Easy 12k"
+    start_time: "08:00"
+    description: |
+      - 12km Z2 HR
+    sc: true
+    bike: commute
+    bike_min: 0
+    bike_km: 0
+    note: ""
+  - date: YYYY-MM-DD
+    dow: Tue
+    run_km: 14
+    run_kind: easy
+    run_name: "Easy 14k"
+    start_time: "08:00"
+    description: |
+      - 14km Z2 HR
+    sc: false
+    bike: commute
+    bike_min: 0
+    bike_km: 0
+    note: ""
+  - date: YYYY-MM-DD
+    dow: Wed
+    run_km: 0
+    run_kind: rest
+    sc: false
+    bike: commute
+    bike_min: 0
+    bike_km: 0
+    note: Rest or easy commute bike only
+  - date: YYYY-MM-DD
+    dow: Thu
+    run_km: 8
+    run_kind: easy
+    run_name: "Easy 8k"
+    start_time: "08:00"
+    description: |
+      - 8km Z2 HR
+    sc: true
+    bike: commute
+    bike_min: 0
+    bike_km: 0
+    note: ""
+  - date: YYYY-MM-DD
+    dow: Fri
+    run_km: 0
+    run_kind: rest
+    sc: false
+    bike: commute
+    bike_min: 0
+    bike_km: 0
+    note: ""
+  - date: YYYY-MM-DD
+    dow: Sat
+    run_km: 16
+    run_kind: long
+    run_name: "Long 16k easy"
+    start_time: "08:00"
+    description: |
+      - 16km Z2 HR
+    sc: false
+    bike: none
+    bike_min: 0
+    bike_km: 0
+    note: ""
+  - date: YYYY-MM-DD
+    dow: Sun
+    run_km: 0
+    run_kind: rest
+    sc: false
+    bike: easy
+    bike_min: 90
+    bike_km: 0
+    bike_name: "Easy 90min bike"
+    bike_start_time: "10:00"
+    note: ""

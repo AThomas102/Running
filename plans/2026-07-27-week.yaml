@@ -1,0 +1,114 @@
+week_start: 2026-07-27
+generated_on: 2026-07-23
+updated_at_gmt: 2026-08-02T08:31:19Z
+athlete: athletes/andrew.md
+goal: Continue base rebuild; away week — no S&C, no bike; Sun 2 Aug easy 8 km makeup after short Sat long
+based_on_history:
+  - history/2026-08-02-week-checkin.md
+  - history/2026-08-02-numbness-timing-and-bike.md
+  - history/2026-07-23-midweek-checkin.md
+  - history/2026-07-23-away-no-sc-bike.md
+research_used:
+  - research/load-injury/ramskov-2024-session-spikes-5200.md
+  - research/intensity-distribution/seiler-2010-tid-best-practice.md
+  - research/tendinopathy/silbernagel-2015-achilles-return-to-sport.md
+rationale: |
+  Away week ~53 km planned; Mon–Wed front-loaded (~38.8 km) with foot numbness Wed–Thu;
+  Sat long only ~9 km. Athlete elected easy 8 km Sun makeup (not rest) to hold buildup.
+summary_title: "27th July (away — Sun 8k makeup)"
+run_total_km: 56
+context: |
+  Away: no S&C, no bike. Actual Mon–Wed ~38.8 km then numbness; Thu/Fri rest held;
+  Sat ~9 km (planned 16). Sun **8 km easy** makeup → ~56 km week if completed.
+watch_fors:
+  - Foot numbness can appear after ~1 day rest — keep Sun conversational
+  - Optional easy bike OK on unload days; do not stack hard makeup
+key_sessions: |
+  ### Easy runs
+
+  Conversational. Finish wanting a bit more.
+
+  ### Sun makeup (2 Aug)
+
+  **8 km** easy after short Sat long — hold buildup without chasing the missed 16.
+strength_and_recovery: |
+  - None this week (away). Resume Mon/Thu S&C and commute bike from week of 3 Aug.
+  - Optional easy bike on Sun unload day OK (see history)
+path_after: |
+  Week of 3 Aug ~56–58 km, resume S&C + bike; do not jump long past ~15 until foot quiet.
+evaluation_notes: |
+  Actual Mon 13.6 / Tue 11.3 / Wed 13.9 / Thu–Fri rest / Sat 9.0 / Sun planned 8 easy makeup.
+days:
+  - date: 2026-07-27
+    dow: Mon
+    run_km: 12
+    run_kind: easy
+    run_name: "Easy 12k"
+    start_time: "08:00"
+    description: |
+      - 12km Z2 HR
+    sc: false
+    bike: none
+    note: "Actual ~13.6 km"
+  - date: 2026-07-28
+    dow: Tue
+    run_km: 14
+    run_kind: easy
+    run_name: "Easy 14k"
+    start_time: "08:00"
+    description: |
+      - 14km Z2 HR
+    sc: false
+    bike: none
+    note: "Actual ~11.3 km"
+  - date: 2026-07-29
+    dow: Wed
+    run_km: 11
+    run_kind: easy
+    run_name: "Easy 11k + strides"
+    start_time: "08:00"
+    description: |
+      - 11km Z2 HR
+    sc: false
+    bike: none
+    note: "Actual ~13.9 km; numbness Wed–Thu after"
+  - date: 2026-07-30
+    dow: Thu
+    run_km: 0
+    run_kind: rest
+    sc: false
+    bike: none
+    note: Rest (held)
+  - date: 2026-07-31
+    dow: Fri
+    run_km: 0
+    run_kind: rest
+    sc: false
+    bike: none
+    note: Rest (held)
+  - date: 2026-08-01
+    dow: Sat
+    run_km: 16
+    run_kind: long
+    run_name: "Long 16k easy"
+    start_time: "08:00"
+    description: |
+      - 16km Z2 HR
+    sc: false
+    bike: none
+    note: "Actual ~9.0 km"
+  - date: 2026-08-02
+    dow: Sun
+    run_km: 8
+    run_kind: easy
+    run_name: "Easy 8k makeup"
+    start_time: "08:00"
+    description: |
+      - 8km Z2 HR
+    sc: false
+    bike: easy
+    bike_min: 90
+    bike_km: 0
+    bike_name: "Easy 90min bike"
+    bike_start_time: "10:00"
+    note: Makeup after short Sat; optional easy 90 min bike

@@ -1,0 +1,18 @@
+[project]
+name = "running"
+version = "0.1.0"
+description = "Sports-science running plans, Intervals.icu helpers, and week YAML tooling"
+requires-python = ">=3.11"
+dependencies = [
+    "PyYAML>=6.0",
+]
+
+[project.scripts]
+gmt-now = "running.gmt_now:main"
+fetch-activities = "running.fetch_activities:main"
+render-week-plan = "running.render_week_plan:main"
+update-weekly-plan = "running.update_weekly_plan:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

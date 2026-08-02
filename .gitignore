@@ -3,3 +3,9 @@ Thumbs.db
 *.swp
 *~
 .obsidian/
+.env
+.cache/
+.venv/
+__pycache__/
+*.py[cod]
+
