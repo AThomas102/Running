@@ -17,6 +17,12 @@ from running.intervals_lib import (
 
 
 def main() -> int:
+    """
+    CLI entry: download one month of Intervals activities into ``.cache/``.
+
+    Returns:
+        int: Process exit code (0 on success).
+    """
     parser = argparse.ArgumentParser(
         description="Fetch Intervals.icu activities for a given month (YYYY-MM)."
     )

@@ -7,6 +7,11 @@ dependencies = [
     "PyYAML>=6.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
 [project.scripts]
 gmt-now = "running.gmt_now:main"
 fetch-activities = "running.fetch_activities:main"
@@ -16,3 +21,7 @@ update-weekly-plan = "running.update_weekly_plan:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

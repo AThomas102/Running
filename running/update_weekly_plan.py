@@ -43,6 +43,15 @@ Cooldown
 
 
 def find_current_week_plan(plans_dir: Path) -> Path:
+    """
+    Resolve the newest week plan YAML given a plans directory.
+
+    Args:
+        plans_dir (Path): Path to the ``plans/`` directory.
+
+    Returns:
+        Path: Newest ``*-week.yaml``.
+    """
     return resolve_week_yaml(None, root=plans_dir.parent)
 
 
@@ -52,7 +61,20 @@ def refuse_past_plan(
     *,
     today: date,
 ) -> None:
-    """Hard-error if the plan's covered range / all sessions are before today."""
+    """
+    Hard-error if the plan's covered range / all sessions are before today.
+
+    Args:
+        meta (dict): Week YAML mapping (or legacy frontmatter).
+        sessions (list[dict]): Upload session dicts.
+        today (date): Local "today" for past-day protection.
+
+    Returns:
+        None: Returns None when the plan may be uploaded.
+
+    Raises:
+        SystemExit: If the plan is entirely in the past.
+    """
     covers = None
     if meta.get("week_start") or meta.get("days"):
         try:
@@ -81,6 +103,18 @@ def refuse_past_plan(
 
 
 def session_date(session: dict) -> date:
+    """
+    Parse a session date field to a ``date``.
+
+    Args:
+        session (dict): Session mapping with a ``date`` key.
+
+    Returns:
+        date: Session calendar date.
+
+    Raises:
+        SystemExit: If the date is missing or invalid.
+    """
     raw = session.get("date")
     if not raw:
         raise SystemExit(f"Session missing date: {session!r}")
@@ -96,7 +130,17 @@ def clamp_clear_range(
     *,
     today: date,
 ) -> tuple[str, str] | None:
-    """Clear only from today onward; never delete past calendar days."""
+    """
+    Clear only from today onward; never delete past calendar days.
+
+    Args:
+        oldest (str): Inclusive range start ``YYYY-MM-DD``.
+        newest (str): Inclusive range end ``YYYY-MM-DD``.
+        today (date): Local today.
+
+    Returns:
+        tuple[str, str] | None: Clamped ``(oldest, newest)``, or None if all past.
+    """
     start = date.fromisoformat(oldest)
     end = date.fromisoformat(newest)
     if end < today:
@@ -113,7 +157,16 @@ def partition_sessions(
     *,
     today: date,
 ) -> tuple[list[dict], list[dict]]:
-    """Return (past_sessions, today_or_future)."""
+    """
+    Split sessions into past vs today-or-future.
+
+    Args:
+        sessions (list[dict]): Session mappings.
+        today (date): Local today.
+
+    Returns:
+        tuple[list[dict], list[dict]]: ``(past_sessions, today_or_future)``.
+    """
     past: list[dict] = []
     future: list[dict] = []
     for s in sessions:
@@ -131,6 +184,18 @@ def clear_range(
     *,
     dry_run: bool,
 ) -> None:
+    """
+    Clear managed ``running-repo:`` calendar events in a date range.
+
+    Args:
+        api_key (str): Intervals API key.
+        oldest (str): Inclusive range start ``YYYY-MM-DD``.
+        newest (str): Inclusive range end ``YYYY-MM-DD``.
+        dry_run (bool): If True, print only and do not delete.
+
+    Returns:
+        None: Prints a summary of cleared events.
+    """
     if dry_run:
         print(f"  would clear managed event(s) in {oldest}..{newest}")
         return
@@ -154,6 +219,19 @@ def maybe_force_garmin(
     oldest: str | None = None,
     newest: str | None = None,
 ) -> None:
+    """
+    Optionally force Intervals→Garmin planned-workout re-upload.
+
+    Args:
+        api_key (str): Intervals API key.
+        dry_run (bool): If True, print intent only.
+        enabled (bool): If False, skip sync.
+        oldest (str | None): Optional clear/nudge range start.
+        newest (str | None): Optional clear/nudge range end.
+
+    Returns:
+        None: Prints sync status lines.
+    """
     if not enabled:
         print("  garmin sync: skipped (--no-garmin-sync)")
         return
@@ -214,6 +292,27 @@ def push_sessions(
     garmin_sync: bool = True,
     today: date | None = None,
 ) -> int:
+    """
+    Upsert plan sessions from today onward and optionally sync Garmin.
+
+    Args:
+        api_key (str): Intervals API key (unused when dry_run).
+        sessions (list[dict]): Session mappings to upload.
+        plan_stem (str): Week plan stem for ``external_id`` values.
+        intervals_only (bool): If True, upload only ``kind=interval`` sessions.
+        dry_run (bool): If True, print payloads without calling the API.
+        clear_oldest (str | None): Optional managed-event clear range start.
+        clear_newest (str | None): Optional managed-event clear range end.
+        garmin_sync (bool): If True, force Intervals→Garmin re-upload.
+        today (date | None): Override for past-day protection; defaults to local today.
+
+    Returns:
+        int: Number of sessions pushed (or dry-run counted).
+
+    Raises:
+        SystemExit: If nothing remains to push on/after today.
+        ValueError: If a session entry is not a mapping.
+    """
     today = today or date.today()
     past, sessions = partition_sessions(sessions, today=today)
     for s in past:
@@ -289,6 +388,20 @@ def push_sessions(
 
 
 def run_demo(api_key: str, *, dry_run: bool, garmin_sync: bool) -> int:
+    """
+    Push a sample 5x1km interval workout (demo helper).
+
+    Args:
+        api_key (str): Intervals API key.
+        dry_run (bool): If True, print only.
+        garmin_sync (bool): If True, force Garmin re-upload after push.
+
+    Returns:
+        int: Number of sessions pushed.
+
+    Raises:
+        SystemExit: If the hardcoded demo day is before today.
+    """
     today = date.today()
     demo_day = "2026-08-03"
     if date.fromisoformat(demo_day) < today:
@@ -318,6 +431,12 @@ def run_demo(api_key: str, *, dry_run: bool, garmin_sync: bool) -> int:
 
 
 def main() -> int:
+    """
+    CLI entry: push week-plan sessions to Intervals and force Garmin sync.
+
+    Returns:
+        int: Process exit code (0 on success).
+    """
     parser = argparse.ArgumentParser(
         description="Push weekly plan sessions to Intervals.icu calendar."
     )

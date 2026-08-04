@@ -1,72 +1,79 @@
 week_start: 2026-08-03
 generated_on: 2026-08-02
-updated_at_gmt: 2026-08-02T08:06:36Z
+updated_at_gmt: 2026-08-03T19:19:36Z
 athlete: athletes/andrew.md
-goal: Hold rebuild ~56–58 km after front-loaded week + foot numbness; resume S&C and commute bike; keep easy easy
+goal: Hold rebuild 57 km after foot numbness + slight post-8k tightness; resume S&C and commute bike; easy HR 80–140 bpm (41-72% HR) / no faster than 4:30/km
 based_on_history:
+  - history/2026-08-02-post-8k-foot-and-easy-targets.md
   - history/2026-08-02-week-checkin.md
+  - history/2026-08-02-numbness-timing-and-bike.md
   - history/2026-07-23-away-no-sc-bike.md
-  - history/2026-07-19-body-feel-and-mileage-goals.md
 research_used:
+  - research/intervals-garmin-easy-hr-targets.md
   - research/load-injury/ramskov-2024-session-spikes-5200.md
   - research/tendinopathy/silbernagel-2015-achilles-return-to-sport.md
+  - research/cross-training/menges-2026-run-cycle-crosstraining.md
   - research/intensity-distribution/seiler-2010-tid-best-practice.md
 rationale: |
-  Prior week front-loaded (~39 km Mon–Wed) with foot numbness Wed–Thu; Sat long only ~9 km;
-  Sun 2 Aug easy 8 km makeup. Do not jump week total hard — hold ~56–58. Resume bike/S&C
-  so aerobic volume is not all on the foot. No threshold yet; one light stride day only if foot quiet.
-summary_title: "3rd August (S&C + bike back)"
+  Prior week front-loaded with numbness Wed–Thu; Sat ~9 km; Sun 8 km done with slight foot
+  tightness afterward (body otherwise fresh). Hold exactly 57 km (12+14+15+16) — do not increase
+  further this week. Easy bike for aerobic volume without foot impact. Easy watch: ≤140 bpm,
+  no faster than 4:30/km (cue). Structured target: 41-72% HR ≈ 80–140 bpm.
+summary_title: "3rd August (hold 57 — foot caution)"
 run_total_km: 57
 context: |
-  Last week (away): Mon–Wed **~38.8 km** then **foot slightly numb Wed–Thu**; Thu/Fri rest held; Sat long **~9 km** not 16; Sun **8 km** easy makeup → week **~56 km** if Sun done. Body feels rested today; foot OK now.
-
-  This week: **resume Mon/Thu S&C** and **easy commute bike**. Mileage target **~56–58 km** (hold / tiny bump vs last week’s outcome) — matching “buildup” means **not** jumping after a numbness signal. Still no threshold; strides only if foot stays quiet through Wed.
+  Sun 2 Aug: **8 km done**; foot **very slightly tight** after; rest of body **very fresh**.
+  Prior week also had delayed numbness after front-load. This week is a **hold** at **57 km**
+  (Mon 12 + Tue 14 + Thu 15 + Sat 16), not a step-up. Resume Mon/Thu S&C and easy commute bike.
+  No threshold; strides only if foot stays quiet (no tightness/numbness) through Wed.
 watch_fors:
-  - Any return of **numbness / tendon ache** → drop that day’s run by **2–4 km** or swap for easy bike; do not stack makeup days
-  - Mon follows Sun makeup — keep Mon **easy 10**, not a big day
-  - Long Sat **15 km** (not 16–18): recent longest still ~17 km in July, but last long was only ~9 — prefer hold
-  - Easy truly easy (conversation); historical easy HR anchor often <145 — use feel first
+  - "**Slight tightness** after Sun — if worse Mon morning or during Mon run, cut Mon to **8–10 km** or swap for easy bike"
+  - "Delayed numbness (~1 day after rest) still possible — treat as load signal"
+  - "Do **not** add run km beyond this plan to make up buildup; use easy bike instead"
+  - "Easy: stay **80–140 bpm** (`41-72% HR`) and **no faster than 4:30/km**; conversation effort wins if either conflicts"
 key_sessions: |
   ### Easy runs
 
-  Conversational. Finish wanting a bit more. No tempo.
+  Conversational. Finish wanting a bit more. Watch: **HR 80–140** via `41-72% HR` (Intervals cannot
+  parse absolute bpm); pace cue **no faster than 4:30/km**.
 
   ### Long run (Sat)
 
-  **15 km** easy. If foot not fully quiet by Fri, cut to **12–13 km**.
+  **16 km** easy under the same caps. If foot not fully quiet by Fri, cut to **12–13 km**.
 
   ### Optional (only if foot quiet all week)
 
-  Tue or Thu finish: **4–6 × 20 s strides** inside the easy run — skip if any numbness.
+  Tue or Thu finish: **4–6 × 20 s strides** — skip if any tightness/numbness.
 strength_and_recovery: |
   - **S&C Mon + Thu** (usual library session)
-  - Easy commute cycling counts as aerobic; do not add long hard rides
+  - Easy commute cycling OK; optional longer easy spins on unload days
   - Sleep / easy walk on rest days OK
 path_after: |
-  If foot quiet all week and ~56–58 handled: next build toward **~60–62 km** and consider one light midweek tempo/threshold. If numbness returns: hold ~50–55 and keep Wed run-free.
+  If foot quiet all week (no tightness/numbness) and 57 km handled: next build toward **~60–62 km**.
+  If tightness/numbness returns: hold ~50–55 and keep Wed run-free; prefer bike for aerobic minutes.
 evaluation_notes: |
-  Good week: ~57 km easy, S&C both done, Sat 15 completed, **no midweek numbness**, Mon after Sun makeup felt fine.
-  Report foot morning feel Wed and after Sat.
+  Good week: 57 km easy under HR/pace caps, S&C both done, Sat 16 completed, **no midweek foot flare**.
+  Report foot morning feel Wed and after Sat before any mileage bump.
 days:
   - date: 2026-08-03
     dow: Mon
-    run_km: 10
-    run_kind: easy
-    run_name: "Easy 10k"
-    start_time: "08:00"
-    description: |
-      - 10km Z2 HR
-    sc: true
-    bike: commute
-    note: ""
-  - date: 2026-08-04
-    dow: Tue
     run_km: 12
     run_kind: easy
     run_name: "Easy 12k"
     start_time: "08:00"
     description: |
-      - 12km Z2 HR
+      - 12km 41-72% HR (no faster than 4:30 per km)
+    sc: true
+    bike: commute
+    note: ""
+  - date: 2026-08-04
+    dow: Tue
+    run_km: 14
+    run_kind: easy
+    run_name: "Easy 14k"
+    start_time: "08:00"
+    description: |
+      - 14km 41-72% HR (no faster than 4:30 per km)
     sc: false
     bike: commute
     note: ""
@@ -79,12 +86,12 @@ days:
     note: Rest or easy commute bike only (no run)
   - date: 2026-08-06
     dow: Thu
-    run_km: 10
+    run_km: 15
     run_kind: easy
-    run_name: "Easy 10k"
+    run_name: "Easy 15k"
     start_time: "08:00"
     description: |
-      - 10km Z2 HR
+      - 15km 41-72% HR (no faster than 4:30 per km)
     sc: true
     bike: commute
     note: ""
@@ -97,12 +104,12 @@ days:
     note: Rest (+ easy commute bike OK)
   - date: 2026-08-08
     dow: Sat
-    run_km: 15
+    run_km: 16
     run_kind: long
-    run_name: "Long 15k easy"
+    run_name: "Long 16k easy"
     start_time: "08:00"
     description: |
-      - 15km Z2 HR
+      - 16km 41-72% HR (no faster than 4:30 per km)
     sc: false
     bike: none
     note: ""

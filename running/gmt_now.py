@@ -8,6 +8,12 @@ from datetime import datetime, timezone
 
 
 def main() -> None:
+    """
+    Print the current GMT/UTC timestamp for file tagging.
+
+    Returns:
+        None: Prints to stdout.
+    """
     parser = argparse.ArgumentParser(
         description="Print current GMT/UTC timestamp for file tagging."
     )

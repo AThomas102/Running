@@ -8,6 +8,7 @@ Requires [uv](https://github.com/astral-sh/uv). From the repo root:
 
 ```bash
 uv sync
+uv sync --extra dev   # pytest for workout-syntax tests
 ```
 
 ## Folders
@@ -21,7 +22,8 @@ uv sync
 | [`plans/archive/`](plans/archive/) | Legacy/reference notes only (old plans, zones, examples) — not part of the weekly workflow. |
 | [`templates/`](templates/) | Blank starters for new weeks ([`TEMPLATE.yaml`](templates/TEMPLATE.yaml), readable-view notes). |
 | [`history/`](history/) | Dated verbatim copies of running-related information the athlete provides (body feel, constraints, goals, adherence). |
-| [`running/`](running/) | Installable Python package (Intervals helpers, week YAML render/push). Run via `uv run …`. |
+| [`running/`](running/) | Installable Python package (Intervals helpers, week YAML render/push, workout syntax). Run via `uv run …`. |
+| [`tests/`](tests/) | Pytest suite (workout description generation vs Intervals syntax guide). `uv sync --extra dev && uv run pytest`. |
 | [`scripts/`](scripts/) | Pointers only — use `uv run` entry points (see [`scripts/README.md`](scripts/README.md)). |
 | [`.cache/`](.cache/) | Local-only (gitignored). Monthly Intervals digests under `.cache/intervals/YYYY-MM/` (`month.md`, JSON). |
 

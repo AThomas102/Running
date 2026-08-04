@@ -8,7 +8,10 @@
 # bike_name, bike_start_time, bike_description: optional Ride overrides
 # Intervals/Garmin: runs with run_kind in {easy,long,interval} and run_km > 0;
 #                   rides when bike_min > 0 or bike_km > 0.
-# Use Z2 HR / intensity=warmup (not bare Z2) in run description for Garmin steps.
+# run_total_km MUST equal the sum of all days[].run_km (render/upload will refuse mismatches).
+# Easy HR: athlete wants 80–140 bpm. Intervals parses % HR / zones only — not absolute bpm
+# (verified 2026-08-03; see research/intervals-garmin-easy-hr-targets.md). Run max_hr=195 → 41-72% HR.
+# Pace floor 4:30/km is a text cue; structured target is the HR range.
 
 week_start: YYYY-MM-DD
 generated_on: YYYY-MM-DD
@@ -22,7 +25,7 @@ research_used:
 rationale: |
   Why this plan fits current load tolerance, goals, and constraints.
 summary_title: "Day Month (short note)"
-run_total_km: 0
+run_total_km: 50
 context: |
   Latest history and how it shapes this week.
 watch_fors:
@@ -50,7 +53,7 @@ days:
     run_name: "Easy 12k"
     start_time: "08:00"
     description: |
-      - 12km Z2 HR
+      - 12km 41-72% HR (no faster than 4:30 per km)
     sc: true
     bike: commute
     bike_min: 0
@@ -63,7 +66,7 @@ days:
     run_name: "Easy 14k"
     start_time: "08:00"
     description: |
-      - 14km Z2 HR
+      - 14km 41-72% HR (no faster than 4:30 per km)
     sc: false
     bike: commute
     bike_min: 0
@@ -85,7 +88,7 @@ days:
     run_name: "Easy 8k"
     start_time: "08:00"
     description: |
-      - 8km Z2 HR
+      - 8km 41-72% HR (no faster than 4:30 per km)
     sc: true
     bike: commute
     bike_min: 0
@@ -107,7 +110,7 @@ days:
     run_name: "Long 16k easy"
     start_time: "08:00"
     description: |
-      - 16km Z2 HR
+      - 16km 41-72% HR (no faster than 4:30 per km)
     sc: false
     bike: none
     bike_min: 0

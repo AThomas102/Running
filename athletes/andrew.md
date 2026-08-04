@@ -37,13 +37,14 @@ Primary athlete for this repo. Update this file when durable facts change (goals
 
 - **8–14 Jun:** spiked to **~87 km** run (long **24.3 km**; multi-run days) — too much too quickly
 - Following weeks: cut to **~39 → ~32 → ~27 km** run while keeping commute cycling
-- Then rebuilt: ~23–26 km → **~40 km** (week of 13 Jul) → targeting **~50 km** (week of 20 Jul; **34.3 km by Thu 23**, feeling good) → next **~53 km** (week of 27 Jul)
+- Then rebuilt: ~23–26 km → **~40 km** (week of 13 Jul) → ~50s (week of 20 Jul) → week of 27 Jul **~56 km** with Sun 8 km makeup after short Sat; **slight foot tightness** after that 8 km (body otherwise fresh)
 - Full June calendar: [history/2026-06-june-running-calendar.md](../history/2026-06-june-running-calendar.md)
 - Combined run+bike often high from commuting; long bike used when run volume low (e.g. **47 km** ride 5 Jul); mid-week 22 Jul included **16.5 km** easy bike on a no-run day
 
 ## Training preferences and anchors
 
-- Keep easy runs easy (conversation / Zone 2; historical &lt;145 bpm anchor — confirm by feel)
+- Keep easy runs easy (conversation / Zone 2). Past lesson: easy runs too hard made high mileage unsustainable.
+- **Easy run watch targets:** HR **80–140 bpm** via Intervals as **`41-72% HR`** (Run `max_hr` 195; absolute bpm is not parsed — see [research/intervals-garmin-easy-hr-targets.md](../research/intervals-garmin-easy-hr-targets.md)). Pace cue: **no faster than 4:30/km**. Prefer feel if either conflicts with conversation effort.
 - Historical tempo HR cap **&lt;168** when doing quality
 - Deload / easier week every **3–4 weeks**
 - S&C Mon/Thu; use [strength-and-conditioning.md](../library/strength-and-conditioning.md)
@@ -62,4 +63,4 @@ Primary athlete for this repo. Update this file when durable facts change (goals
 - S&C: [library/strength-and-conditioning.md](../library/strength-and-conditioning.md)
 - Historical plans: [plans/archive/old-running-plans.md](../plans/archive/old-running-plans.md)
 - Zones: [plans/archive/running-heart-rate-zones.md](../plans/archive/running-heart-rate-zones.md)
-- History: [2026-06-june-running-calendar.md](../history/2026-06-june-running-calendar.md), [2026-07-19-training-history-and-goals.md](../history/2026-07-19-training-history-and-goals.md), [2026-07-19-body-feel-and-mileage-goals.md](../history/2026-07-19-body-feel-and-mileage-goals.md), [2026-07-19-schedule-constraints.md](../history/2026-07-19-schedule-constraints.md), [2026-07-19-recent-race-marks.md](../history/2026-07-19-recent-race-marks.md), [2026-07-19-commute-constraint.md](../history/2026-07-19-commute-constraint.md), [2026-07-23-midweek-checkin.md](../history/2026-07-23-midweek-checkin.md)
+- History: [2026-06-june-running-calendar.md](../history/2026-06-june-running-calendar.md), [2026-07-19-training-history-and-goals.md](../history/2026-07-19-training-history-and-goals.md), [2026-07-19-body-feel-and-mileage-goals.md](../history/2026-07-19-body-feel-and-mileage-goals.md), [2026-07-19-schedule-constraints.md](../history/2026-07-19-schedule-constraints.md), [2026-07-19-recent-race-marks.md](../history/2026-07-19-recent-race-marks.md), [2026-07-19-commute-constraint.md](../history/2026-07-19-commute-constraint.md), [2026-07-23-midweek-checkin.md](../history/2026-07-23-midweek-checkin.md), [2026-08-02-week-checkin.md](../history/2026-08-02-week-checkin.md), [2026-08-02-post-8k-foot-and-easy-targets.md](../history/2026-08-02-post-8k-foot-and-easy-targets.md)

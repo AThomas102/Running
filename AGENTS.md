@@ -47,8 +47,32 @@
 - Render readable markdown: `uv run render-week-plan` → `plans/YYYY-MM-DD-week.md` (generated; do not hand-edit as source).
 - Keep all week plans flat under `plans/` — do not move superseded weeks. Current week = newest `*-week.yaml` by Monday date in the filename.
 - [`plans/archive/`](plans/archive/) is for legacy/reference notes only (old plans, zones, examples) — not part of the weekly workflow.
+- **Arithmetic check (mandatory):** before finishing any week plan, sum every `days[].run_km` and set `run_total_km` to that exact total. Day `run_name` / `description` distances must match `run_km`. `uv run render-week-plan` and `uv run update-weekly-plan` refuse mismatched totals — do not bypass by editing the markdown alone.
+- Intervals workout steps: build via `running/workout_syntax.py` following [Intervals workout builder syntax](https://forum.intervals.icu/t/workout-builder-syntax-quick-guide/123701). Prefer documented targets (`% HR`, `Zx HR`, absolute Pace). Absolute bpm is **not** in that guide and must not be used as a structured target.
 - Date plans via filename (`week_start`) and YAML fields (`generated_on`, `updated_at_gmt`). Use `uv run gmt-now` for GMT tags.
 - Push to Intervals/Garmin: `uv run update-weekly-plan` (reads YAML `days` — runs and simple `bike_min`/`bike_km` Rides). Use `--intervals-only` for quality run sessions only. Never updates calendar days before today.
+
+## Code (Python)
+
+- When adding or changing functions in this repo, give each function a brief docstring with **Args** and **Returns** (and **Raises** when relevant), for example:
+
+```python
+def multiply(a: int, b: int) -> int:
+    """
+    Multiply two numbers.
+
+    Args:
+        a (int): First number.
+        b (int): Second number.
+
+    Returns:
+        int: Product of a and b.
+    """
+    return a * b
+```
+
+- Prefer modular helpers (e.g. workout string builders in `running/workout_syntax.py`) over inlining Intervals syntax in plan YAML loaders.
+- After changing workout string generation, run `uv run pytest`.
 
 ## History
 

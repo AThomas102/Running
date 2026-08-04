@@ -18,4 +18,5 @@ Evidence cards for planning. Prefer citing these paths in plan `research_used` b
 | Tendinopathy | [gatz-2023-achilles-loading-meta.md](tendinopathy/gatz-2023-achilles-loading-meta.md) | Loading protocols for midportion Achilles tendinopathy |
 | Cross-training | [menges-2026-run-cycle-crosstraining.md](cross-training/menges-2026-run-cycle-crosstraining.md) | Commute bike / cycling as aerobic filler vs run-specific work |
 | Cross-training | [loy-1995-cross-training-benefits.md](cross-training/loy-1995-cross-training-benefits.md) | Classic cross-training rationale (rehab, load modulation) |
+| Tooling / Garmin | [intervals-garmin-easy-hr-targets.md](intervals-garmin-easy-hr-targets.md) | Easy-run HR range via Intervals→Garmin (`% HR`, not absolute bpm) |
 | Legacy note | [lactate-threshold-tempo.md](lactate-threshold-tempo.md) | Practical tempo/LT cues (pair with newer TID reviews) |

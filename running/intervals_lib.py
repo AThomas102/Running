@@ -13,6 +13,8 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from running.workout_syntax import normalize_workout_description
+
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -21,10 +23,30 @@ API_BASE = "https://intervals.icu/api/v1"
 
 
 def repo_root() -> Path:
+    """
+    Return the repository root directory.
+
+    Returns:
+        Path: Parent of the ``running/`` package.
+    """
     return Path(__file__).resolve().parent.parent
 
 
 def load_api_key(env_path: Path | None = None) -> str:
+    """
+    Load ``INTERVALS_API_KEY`` from a ``.env`` file.
+
+    Args:
+        env_path (Path | None): Optional path to ``.env``; defaults to repo root.
+
+    Returns:
+        str: API key string.
+
+    Raises:
+        FileNotFoundError: If the env file is missing.
+        KeyError: If the key is not present.
+        ValueError: If the key is empty.
+    """
     path = env_path or (repo_root() / ".env")
     if not path.is_file():
         raise FileNotFoundError(
@@ -43,7 +65,18 @@ def load_api_key(env_path: Path | None = None) -> str:
 
 
 def month_bounds(year_month: str) -> tuple[date, date]:
-    """Return [start, end) for YYYY-MM."""
+    """
+    Return half-open ``[start, end)`` bounds for a calendar month.
+
+    Args:
+        year_month (str): Month as ``YYYY-MM``.
+
+    Returns:
+        tuple[date, date]: Inclusive start and exclusive end dates.
+
+    Raises:
+        ValueError: If the month string is invalid.
+    """
     m = re.fullmatch(r"(\d{4})-(\d{2})", year_month)
     if not m:
         raise ValueError(f"Month must be YYYY-MM, got {year_month!r}")
@@ -59,6 +92,15 @@ def month_bounds(year_month: str) -> tuple[date, date]:
 
 
 def _auth_header(api_key: str) -> str:
+    """
+    Build an HTTP Basic Authorization header for Intervals API key auth.
+
+    Args:
+        api_key (str): Intervals API key.
+
+    Returns:
+        str: ``Basic …`` header value.
+    """
     token = base64.b64encode(f"API_KEY:{api_key}".encode()).decode()
     return f"Basic {token}"
 
@@ -71,6 +113,22 @@ def request_json(
     params: dict[str, str] | None = None,
     body: Any | None = None,
 ) -> Any:
+    """
+    Perform an authenticated JSON HTTP request to Intervals.icu.
+
+    Args:
+        method (str): HTTP method (GET, POST, PUT, DELETE, …).
+        path (str): API path beginning with ``/``.
+        api_key (str): Intervals API key.
+        params (dict[str, str] | None): Optional query parameters.
+        body (Any | None): Optional JSON-serializable body.
+
+    Returns:
+        Any: Parsed JSON response, or None for empty bodies.
+
+    Raises:
+        RuntimeError: On HTTP errors.
+    """
     url = f"{API_BASE}{path}"
     if params:
         url = f"{url}?{urllib.parse.urlencode(params)}"
@@ -96,6 +154,17 @@ def request_json(
 
 
 def get_json(path: str, api_key: str, params: dict[str, str] | None = None) -> Any:
+    """
+    GET JSON from the Intervals API.
+
+    Args:
+        path (str): API path.
+        api_key (str): Intervals API key.
+        params (dict[str, str] | None): Optional query parameters.
+
+    Returns:
+        Any: Parsed JSON response.
+    """
     return request_json("GET", path, api_key, params=params)
 
 
@@ -106,6 +175,18 @@ def post_json(
     *,
     params: dict[str, str] | None = None,
 ) -> Any:
+    """
+    POST JSON to the Intervals API.
+
+    Args:
+        path (str): API path.
+        api_key (str): Intervals API key.
+        body (Any): JSON-serializable body.
+        params (dict[str, str] | None): Optional query parameters.
+
+    Returns:
+        Any: Parsed JSON response.
+    """
     return request_json("POST", path, api_key, params=params, body=body)
 
 
@@ -116,15 +197,46 @@ def put_json(
     *,
     params: dict[str, str] | None = None,
 ) -> Any:
+    """
+    PUT JSON to the Intervals API.
+
+    Args:
+        path (str): API path.
+        api_key (str): Intervals API key.
+        body (Any): JSON-serializable body.
+        params (dict[str, str] | None): Optional query parameters.
+
+    Returns:
+        Any: Parsed JSON response.
+    """
     return request_json("PUT", path, api_key, params=params, body=body)
 
 
 def slugify(text: str) -> str:
+    """
+    Slugify text for use in external IDs.
+
+    Args:
+        text (str): Free-form name.
+
+    Returns:
+        str: Lowercase hyphenated slug (or ``session`` if empty).
+    """
     s = re.sub(r"[^a-zA-Z0-9]+", "-", text.strip().lower()).strip("-")
     return s or "session"
 
 
 def session_uid(plan_stem: str, session: dict[str, Any]) -> str:
+    """
+    Build a stable ``external_id`` for a planned session.
+
+    Args:
+        plan_stem (str): Week plan filename stem (e.g. ``2026-08-03-week``).
+        session (dict[str, Any]): Session mapping with ``date`` and ``name``.
+
+    Returns:
+        str: ID such as ``running-repo:…:2026-08-03:easy-12k``.
+    """
     day = str(session.get("date") or "")
     name = slugify(str(session.get("name") or "run"))
     return f"running-repo:{plan_stem}:{day}:{name}"
@@ -136,6 +248,20 @@ def event_payload_from_session(
     uid: str,
     default_start_time: str = "08:00",
 ) -> dict[str, Any]:
+    """
+    Build an Intervals calendar event payload from a session dict.
+
+    Args:
+        session (dict[str, Any]): Session with date, name, type, description.
+        uid (str): Stable ``external_id``.
+        default_start_time (str): Fallback local start time ``HH:MM``.
+
+    Returns:
+        dict[str, Any]: Payload for POST/PUT ``/athlete/0/events``.
+
+    Raises:
+        ValueError: If the session has no date.
+    """
     day = str(session.get("date") or "").strip()
     if not day:
         raise ValueError(f"session missing date: {session!r}")
@@ -158,46 +284,6 @@ def event_payload_from_session(
     }
 
 
-_BARE_ZONE_RE = re.compile(
-    r"(?i)(?<![\w%])(Z\d(?:\s*-\s*Z\d)?)(?!\s*(?:HR|Pace|LTHR)\b)"
-)
-_REPS_LINE_RE = re.compile(r"(?i)^\d+x$|^\w[\w\s]*\s+\d+x$")
-
-
-def normalize_workout_description(text: str, *, sport: str = "Run") -> str:
-    """Blank lines around repeats; for Run, turn bare Zn into Zn HR (Garmin-safe)."""
-    lines = text.replace("\r\n", "\n").split("\n")
-    out: list[str] = []
-    is_run = "run" in sport.lower()
-
-    for line in lines:
-        stripped = line.strip()
-        is_reps = bool(_REPS_LINE_RE.match(stripped))
-        if is_reps and out and out[-1].strip():
-            out.append("")
-
-        if (
-            is_run
-            and stripped.startswith("-")
-            and re.search(r"(?i)\b(?:HR|Pace|LTHR|%|/\w+)\b", stripped) is None
-        ):
-            line = _BARE_ZONE_RE.sub(r"\1 HR", line)
-
-        out.append(line.rstrip())
-
-    cleaned: list[str] = []
-    blank_run = 0
-    for line in out:
-        if not line.strip():
-            blank_run += 1
-            if blank_run <= 1:
-                cleaned.append("")
-        else:
-            blank_run = 0
-            cleaned.append(line)
-    return "\n".join(cleaned).strip() + "\n"
-
-
 def list_events(
     api_key: str,
     *,
@@ -205,6 +291,18 @@ def list_events(
     newest: str,
     category: str = "WORKOUT",
 ) -> list[dict[str, Any]]:
+    """
+    List Intervals calendar events in a date range.
+
+    Args:
+        api_key (str): Intervals API key.
+        oldest (str): Inclusive start ``YYYY-MM-DD``.
+        newest (str): Inclusive end ``YYYY-MM-DD``.
+        category (str): Event category filter (default ``WORKOUT``).
+
+    Returns:
+        list[dict[str, Any]]: Event mappings (empty list if none).
+    """
     events = get_json(
         "/athlete/0/events",
         api_key,
@@ -220,6 +318,18 @@ def find_event_by_external_id(
     oldest: str,
     newest: str,
 ) -> dict[str, Any] | None:
+    """
+    Find a calendar event by ``external_id`` within a date range.
+
+    Args:
+        api_key (str): Intervals API key.
+        external_id (str): Stable external id to match.
+        oldest (str): Inclusive search start ``YYYY-MM-DD``.
+        newest (str): Inclusive search end ``YYYY-MM-DD``.
+
+    Returns:
+        dict[str, Any] | None: Matching event, or None.
+    """
     for ev in list_events(api_key, oldest=oldest, newest=newest):
         if ev.get("external_id") == external_id:
             return ev
@@ -234,7 +344,19 @@ def clear_managed_events(
     prefix: str = "running-repo:",
     dry_run: bool = False,
 ) -> list[dict[str, Any]]:
-    """Delete calendar workouts we previously pushed (external_id prefix)."""
+    """
+    Delete calendar workouts previously pushed by this repo.
+
+    Args:
+        api_key (str): Intervals API key.
+        oldest (str): Inclusive range start ``YYYY-MM-DD``.
+        newest (str): Inclusive range end ``YYYY-MM-DD``.
+        prefix (str): ``external_id`` prefix to match (default ``running-repo:``).
+        dry_run (bool): If True, collect matches without deleting.
+
+    Returns:
+        list[dict[str, Any]]: Events that were (or would be) deleted.
+    """
     deleted: list[dict[str, Any]] = []
     for ev in list_events(api_key, oldest=oldest, newest=newest):
         ext = str(ev.get("external_id") or "")
@@ -253,10 +375,19 @@ def upsert_event(
     *,
     existing_id: int | str | None = None,
 ) -> Any:
-    """Create or update a calendar workout, keyed by external_id.
+    """
+    Create or update a calendar workout, keyed by ``external_id``.
 
     Intervals assigns its own ``uid``; with API-key auth, stable upserts use
     ``external_id`` plus PUT when an event already exists.
+
+    Args:
+        api_key (str): Intervals API key.
+        payload (dict[str, Any]): Event body for POST/PUT.
+        existing_id (int | str | None): If set, PUT this event id directly.
+
+    Returns:
+        Any: API response for the created/updated event.
     """
     if existing_id is not None:
         return put_json(f"/athlete/0/events/{existing_id}", api_key, payload)
@@ -274,10 +405,29 @@ def upsert_event(
 
 
 def delete_event(api_key: str, event_id: int | str) -> None:
+    """
+    Delete a calendar event by id.
+
+    Args:
+        api_key (str): Intervals API key.
+        event_id (int | str): Intervals event id.
+
+    Returns:
+        None: No return value.
+    """
     request_json("DELETE", f"/athlete/0/events/{event_id}", api_key)
 
 
 def garmin_upload_status(api_key: str) -> dict[str, Any]:
+    """
+    Read Garmin connection / planned-workout upload status from the athlete.
+
+    Args:
+        api_key (str): Intervals API key.
+
+    Returns:
+        dict[str, Any]: Connection flags and last upload timestamp.
+    """
     ath = get_json("/athlete/0", api_key)
     return {
         "training_connected": bool(ath.get("icu_garmin_training")),
@@ -288,11 +438,21 @@ def garmin_upload_status(api_key: str) -> dict[str, Any]:
 
 
 def force_garmin_workout_sync(api_key: str) -> dict[str, Any]:
-    """Force Intervals to re-upload planned workouts to Garmin Connect.
+    """
+    Force Intervals to re-upload planned workouts to Garmin Connect.
 
     Intervals has no dedicated sync endpoint. Toggling
     ``icu_garmin_upload_workouts`` off→on triggers a full planned-workout
     re-upload (``icu_garmin_last_upload`` advances).
+
+    Args:
+        api_key (str): Intervals API key.
+
+    Returns:
+        dict[str, Any]: ``before``/``after`` status and sync ``method``.
+
+    Raises:
+        RuntimeError: If Garmin training is not connected.
     """
     before = garmin_upload_status(api_key)
     if not before["training_connected"]:
@@ -331,7 +491,16 @@ def nudge_events_for_garmin(
     api_key: str,
     events: list[dict[str, Any]],
 ) -> int:
-    """Re-PUT events to re-trigger Garmin export (Intervals 'dummy edit' trick)."""
+    """
+    Re-PUT events to re-trigger Garmin export (Intervals dummy-edit trick).
+
+    Args:
+        api_key (str): Intervals API key.
+        events (list[dict[str, Any]]): Event mappings with ids to nudge.
+
+    Returns:
+        int: Number of events re-PUT.
+    """
     n = 0
     for ev in events:
         eid = ev.get("id")
@@ -352,7 +521,15 @@ def nudge_events_for_garmin(
 
 
 def covers_date_range(meta: dict[str, Any]) -> tuple[str, str] | None:
-    """Parse frontmatter covers: YYYY-MM-DD to YYYY-MM-DD → (oldest, newest)."""
+    """
+    Parse frontmatter ``covers: YYYY-MM-DD to YYYY-MM-DD``.
+
+    Args:
+        meta (dict[str, Any]): Mapping that may contain ``covers``.
+
+    Returns:
+        tuple[str, str] | None: ``(oldest, newest)`` or None if missing/unparsed.
+    """
     covers = meta.get("covers")
     if not covers:
         return None
@@ -367,6 +544,15 @@ def covers_date_range(meta: dict[str, Any]) -> tuple[str, str] | None:
 
 
 def sessions_date_range(sessions: list[dict[str, Any]]) -> tuple[str, str] | None:
+    """
+    Return min/max session dates.
+
+    Args:
+        sessions (list[dict[str, Any]]): Session mappings with ``date`` keys.
+
+    Returns:
+        tuple[str, str] | None: ``(oldest, newest)`` or None if empty.
+    """
     dates = []
     for s in sessions:
         if isinstance(s, dict) and s.get("date"):
@@ -377,6 +563,15 @@ def sessions_date_range(sessions: list[dict[str, Any]]) -> tuple[str, str] | Non
 
 
 def _parse_start_local(raw: dict[str, Any]) -> str | None:
+    """
+    Extract a local start timestamp string from an activity payload.
+
+    Args:
+        raw (dict[str, Any]): Raw Intervals activity mapping.
+
+    Returns:
+        str | None: Local start up to seconds, or None.
+    """
     for key in ("start_date_local", "start_date"):
         val = raw.get(key)
         if val:
@@ -385,6 +580,15 @@ def _parse_start_local(raw: dict[str, Any]) -> str | None:
 
 
 def _start_date(raw: dict[str, Any]) -> date | None:
+    """
+    Parse the calendar date of an activity.
+
+    Args:
+        raw (dict[str, Any]): Raw Intervals activity mapping.
+
+    Returns:
+        date | None: Activity date, or None if missing/invalid.
+    """
     s = _parse_start_local(raw)
     if not s:
         return None
@@ -395,11 +599,29 @@ def _start_date(raw: dict[str, Any]) -> date | None:
 
 
 def is_run(activity_type: str | None) -> bool:
+    """
+    Return whether an activity type is a run (not run/bike combo).
+
+    Args:
+        activity_type (str | None): Intervals activity type string.
+
+    Returns:
+        bool: True if the type looks like a run.
+    """
     t = (activity_type or "").lower()
     return "run" in t and "run_bike" not in t
 
 
 def is_ride(activity_type: str | None) -> bool:
+    """
+    Return whether an activity type is a bike ride.
+
+    Args:
+        activity_type (str | None): Intervals activity type string.
+
+    Returns:
+        bool: True if the type looks like a ride.
+    """
     t = (activity_type or "").lower()
     return t in {"ride", "virtualride", "cycling", "ebikeride", "gravelride"} or (
         "ride" in t and "run" not in t
@@ -407,6 +629,15 @@ def is_ride(activity_type: str | None) -> bool:
 
 
 def normalize_activity(raw: dict[str, Any]) -> dict[str, Any]:
+    """
+    Normalize a raw Intervals activity into a compact planning dict.
+
+    Args:
+        raw (dict[str, Any]): Raw activity from the activities list API.
+
+    Returns:
+        dict[str, Any]: Selected fields with distance in km.
+    """
     out: dict[str, Any] = {
         "id": raw.get("id"),
         "start_local": _parse_start_local(raw),
@@ -435,7 +666,17 @@ def fetch_month_activities(
     *,
     limit: int = 100,
 ) -> list[dict[str, Any]]:
-    """Fetch activities with oldest=month start; keep paging until past month end."""
+    """
+    Fetch activities for one calendar month.
+
+    Args:
+        api_key (str): Intervals API key.
+        year_month (str): Month as ``YYYY-MM``.
+        limit (int): API page size.
+
+    Returns:
+        list[dict[str, Any]]: Normalized activities in the month.
+    """
     start, end = month_bounds(year_month)
     oldest_param = start.isoformat()
     seen: set[str] = set()
@@ -483,6 +724,15 @@ def fetch_month_activities(
 
 
 def summarize(activities: list[dict[str, Any]]) -> dict[str, Any]:
+    """
+    Summarize run/ride totals for a list of activities.
+
+    Args:
+        activities (list[dict[str, Any]]): Normalized activity mappings.
+
+    Returns:
+        dict[str, Any]: Counts and kilometre totals.
+    """
     run_km = 0.0
     ride_km = 0.0
     other_km = 0.0
@@ -510,6 +760,15 @@ def summarize(activities: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def format_duration(seconds: int | None) -> str:
+    """
+    Format a duration in seconds as ``H:MM:SS`` or ``M:SS``.
+
+    Args:
+        seconds (int | None): Duration in seconds.
+
+    Returns:
+        str: Formatted duration, or empty string if None.
+    """
     if seconds is None:
         return ""
     s = int(seconds)
@@ -526,6 +785,18 @@ def render_month_md(
     summary: dict[str, Any],
     fetched_at_gmt: str,
 ) -> str:
+    """
+    Render a monthly activity digest as markdown.
+
+    Args:
+        year_month (str): Month as ``YYYY-MM``.
+        activities (list[dict[str, Any]]): Normalized activities.
+        summary (dict[str, Any]): Output of ``summarize``.
+        fetched_at_gmt (str): Fetch timestamp for frontmatter.
+
+    Returns:
+        str: Markdown document.
+    """
     start, end = month_bounds(year_month)
     lines = [
         "---",
@@ -571,4 +842,10 @@ def render_month_md(
 
 
 def gmt_now_iso() -> str:
+    """
+    Return the current UTC time as an ISO-8601 ``…Z`` string.
+
+    Returns:
+        str: Timestamp such as ``2026-08-04T07:00:00Z``.
+    """
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
