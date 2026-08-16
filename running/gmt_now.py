@@ -12,7 +12,7 @@ def main() -> None:
     Print the current GMT/UTC timestamp for file tagging.
 
     Returns:
-        None: Prints to stdout.
+        Prints to stdout.
     """
     parser = argparse.ArgumentParser(
         description="Print current GMT/UTC timestamp for file tagging."

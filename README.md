@@ -23,7 +23,7 @@ uv sync --extra dev   # pytest for workout-syntax tests
 | [`templates/`](templates/) | Blank starters for new weeks ([`TEMPLATE.yaml`](templates/TEMPLATE.yaml), readable-view notes). |
 | [`history/`](history/) | Dated verbatim copies of running-related information the athlete provides (body feel, constraints, goals, adherence). |
 | [`running/`](running/) | Installable Python package (Intervals helpers, week YAML render/push, workout syntax). Run via `uv run …`. |
-| [`tests/`](tests/) | Pytest suite (workout description generation vs Intervals syntax guide). `uv sync --extra dev && uv run pytest`. |
+| [`tests/`](tests/) | Pytest suite: Intervals syntax, week totals, upload past-day safety, and Pace/stride contracts. `uv sync --extra dev && uv run pytest`. |
 | [`scripts/`](scripts/) | Pointers only — use `uv run` entry points (see [`scripts/README.md`](scripts/README.md)). |
 | [`.cache/`](.cache/) | Local-only (gitignored). Monthly Intervals digests under `.cache/intervals/YYYY-MM/` (`month.md`, JSON). |
 

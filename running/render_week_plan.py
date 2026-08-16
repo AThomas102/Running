@@ -12,7 +12,7 @@ def main() -> int:
     CLI entry: render a week YAML to markdown.
 
     Returns:
-        int: Process exit code (0 on success).
+        Process exit code (0 on success).
     """
     parser = argparse.ArgumentParser(
         description="Render weekly plan YAML to markdown (SSOT → readable view)."

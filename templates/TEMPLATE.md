@@ -24,4 +24,5 @@ Schema notes (also in TEMPLATE.yaml comments):
 - `bike_min` / `bike_km`: simple Ride length to upload (prefer minutes; no bike intervals)
 - `run_total_km` must equal the sum of all `days[].run_km` (render/upload refuse mismatches)
 - Intervals sessions = runs with `run_kind` in `{easy,long,interval}` and `run_km > 0`, plus rides when `bike_min` or `bike_km` > 0
-- Use `{km}km 41-72% HR (no faster than 4:30 per km)` on easy/long (= **80–140 bpm** at Run max_hr 195; Intervals cannot parse absolute bpm — see research card).
+- Use `{km}km 8:00-4:40/km Pace` on easy/long (no faster than **4:40/km**; slower OK). Pace — not HR — is the easy governor (see research card).
+- Strides after easy: open ``Press lap … intensity=rest`` bridge (lap to continue), then `4x` / `20s intensity=active` / `90s intensity=rest`.

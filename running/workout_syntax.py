@@ -15,6 +15,7 @@ Not documented (and not used as structured targets here):
 
 Live parse checks (2026-08-03) matched the guide: ``41-72% HR`` becomes
 ``hr: {start:41, end:72, units:"%hr"}``; absolute bpm does not.
+Easy/long defaults now use ``8:00-4:40/km Pace``.
 """
 
 from __future__ import annotations
@@ -27,11 +28,10 @@ SYNTAX_GUIDE_URL = (
     "https://forum.intervals.icu/t/workout-builder-syntax-quick-guide/123701"
 )
 
-# Athlete easy-run BPM band and Intervals Run max_hr used to map to % HR.
-EASY_HR_BPM_MIN = 80
-EASY_HR_BPM_MAX = 140
-DEFAULT_RUN_MAX_HR = 195
-EASY_PACE_FLOOR = "4:30"  # min/km; slower OK — note text only, not a Pace target
+EASY_PACE_FLOOR = "4:40"  # min/km — fastest allowed easy pace
+EASY_PACE_CEILING = "8:00"  # min/km — slow end of easy Pace band
+# Verified Intervals parse: ``8:00-4:40/km Pace`` → secs/km band.
+EASY_PACE_TARGET = f"{EASY_PACE_CEILING}-{EASY_PACE_FLOOR}/km Pace"
 
 # Step line shape from the guide: "- <load> <target> …"
 _STEP_LOAD_RE = re.compile(
@@ -55,59 +55,16 @@ _BARE_ZONE_RE = re.compile(
 _REPS_LINE_RE = re.compile(r"(?i)^\d+x$|^\w[\w\s]*\s+\d+x$")
 
 
-def bpm_to_pct_of_max(bpm: int, max_hr: int) -> int:
-    """
-    Convert absolute heart rate to percent of max HR (rounded).
-
-    Args:
-        bpm (int): Absolute heart rate in beats per minute.
-        max_hr (int): Athlete maximum heart rate.
-
-    Returns:
-        int: Percent of max HR (0–100 scale integer).
-
-    Raises:
-        ValueError: If max_hr is not positive or bpm is negative.
-    """
-    if max_hr <= 0:
-        raise ValueError(f"max_hr must be positive, got {max_hr}")
-    if bpm < 0:
-        raise ValueError(f"bpm must be >= 0, got {bpm}")
-    return int(round(100.0 * bpm / max_hr))
-
-
-def easy_hr_pct_range(
-    *,
-    bpm_min: int = EASY_HR_BPM_MIN,
-    bpm_max: int = EASY_HR_BPM_MAX,
-    max_hr: int = DEFAULT_RUN_MAX_HR,
-) -> tuple[int, int]:
-    """
-    Map easy BPM band to an Intervals ``% HR`` range.
-
-    Args:
-        bpm_min (int): Lower easy HR in bpm.
-        bpm_max (int): Upper easy HR in bpm.
-        max_hr (int): Athlete max HR used for the percent conversion.
-
-    Returns:
-        tuple[int, int]: Inclusive (lo_pct, hi_pct) for use as ``lo-hi% HR``.
-    """
-    if bpm_min > bpm_max:
-        raise ValueError(f"bpm_min ({bpm_min}) > bpm_max ({bpm_max})")
-    return bpm_to_pct_of_max(bpm_min, max_hr), bpm_to_pct_of_max(bpm_max, max_hr)
-
-
 def format_hr_pct_target(lo_pct: int, hi_pct: int) -> str:
     """
     Build a guide-documented HR percent target string.
 
     Args:
-        lo_pct (int): Lower percent of max HR.
-        hi_pct (int): Upper percent of max HR.
+        lo_pct: Lower percent of max HR.
+        hi_pct: Upper percent of max HR.
 
     Returns:
-        str: Target such as ``41-72% HR`` (see SYNTAX_GUIDE_URL).
+        Target such as ``41-72% HR`` (see SYNTAX_GUIDE_URL).
     """
     if lo_pct > hi_pct:
         raise ValueError(f"lo_pct ({lo_pct}) > hi_pct ({hi_pct})")
@@ -121,10 +78,10 @@ def format_distance_km(km: float) -> str:
     Format a distance token for an Intervals step.
 
     Args:
-        km (float): Distance in kilometres.
+        km: Distance in kilometres.
 
     Returns:
-        str: Guide-style distance such as ``12km`` or ``10.5km``.
+        Guide-style distance such as ``12km`` or ``10.5km``.
     """
     if km <= 0:
         raise ValueError(f"km must be positive, got {km}")
@@ -136,10 +93,10 @@ def format_duration_minutes(minutes: int) -> str:
     Format a duration token for an Intervals step.
 
     Args:
-        minutes (int): Duration in whole minutes.
+        minutes: Duration in whole minutes.
 
     Returns:
-        str: Guide-style duration such as ``45m`` or ``1h30m``.
+        Guide-style duration such as ``45m`` or ``1h30m``.
     """
     if minutes <= 0:
         raise ValueError("minutes must be positive")
@@ -161,18 +118,18 @@ def step_line(
 
     Follows the guide pattern ``- [duration OR distance] [target]``. Optional
     ``note`` is appended in parentheses after the target (free text — not a
-    second structured target). Do not put pace tokens like ``4:30/km`` *before*
+    second structured target). Do not put pace tokens like ``4:40/km`` *before*
     the load; the guide treats text before the first duration/distance as cue
     text and it can break parsing.
 
     Args:
-        load (str): Duration or distance token (e.g. ``12km``, ``1h30m``).
-        target (str): Intensity target (e.g. ``41-72% HR``, ``Z2 HR``).
-        note (str | None): Optional free-text note after the target.
-        trailing_newline (bool): If True, end with a newline (API descriptions).
+        load: Duration or distance token (e.g. ``12km``, ``1h30m``).
+        target: Intensity target (e.g. ``8:00-4:40/km Pace``, ``Z2 HR``).
+        note: Optional free-text note after the target.
+        trailing_newline: If True, end with a newline (API descriptions).
 
     Returns:
-        str: Complete step line starting with ``- ``.
+        Complete step line starting with ``- ``.
     """
     load_s = load.strip()
     target_s = target.strip()
@@ -201,34 +158,70 @@ def step_line(
 def easy_run_description(
     km: float,
     *,
-    bpm_min: int = EASY_HR_BPM_MIN,
-    bpm_max: int = EASY_HR_BPM_MAX,
-    max_hr: int = DEFAULT_RUN_MAX_HR,
+    pace_ceiling: str = EASY_PACE_CEILING,
     pace_floor: str = EASY_PACE_FLOOR,
 ) -> str:
     """
     Build the default easy/long run Intervals description.
 
-    Uses ``% HR`` (documented) so Intervals can parse a structured HR range for
-    Garmin. Absolute bpm is not in the guide and is not used as the target.
+    Uses absolute ``Pace`` (documented) so Garmin gets a pace band. HR is not
+    used: this athlete can run very low HR at fast paces (e.g. ~4:10/km), so
+    pace is the easy governor.
 
     Args:
-        km (float): Run distance in kilometres.
-        bpm_min (int): Easy lower HR in bpm (mapped to % of max_hr).
-        bpm_max (int): Easy upper HR in bpm (mapped to % of max_hr).
-        max_hr (int): Athlete max HR for the percent conversion.
-        pace_floor (str): Slowest allowed pace as mm:ss per km (note text only).
+        km: Run distance in kilometres.
+        pace_ceiling: Slow end of easy band as mm:ss per km (e.g. 8:00).
+        pace_floor: Fast end of easy band as mm:ss per km (e.g. 4:40).
 
     Returns:
-        str: Description ending with a newline, e.g.
-        ``- 12km 41-72% HR (no faster than 4:30 per km)\\n``.
+        Description ending with a newline, e.g.
+        ``- 12km 8:00-4:40/km Pace\\n``.
     """
-    lo, hi = easy_hr_pct_range(bpm_min=bpm_min, bpm_max=bpm_max, max_hr=max_hr)
-    return step_line(
-        format_distance_km(km),
-        format_hr_pct_target(lo, hi),
-        note=f"no faster than {pace_floor} per km",
+    target = f"{pace_ceiling}-{pace_floor}/km Pace"
+    return step_line(format_distance_km(km), target)
+
+
+def easy_run_with_strides_description(
+    km: float,
+    *,
+    stride_reps: int = 4,
+    stride_seconds: int = 20,
+    rest_seconds: int = 90,
+    bridge_rest_placeholder_minutes: int = 15,
+    pace_ceiling: str = EASY_PACE_CEILING,
+    pace_floor: str = EASY_PACE_FLOOR,
+) -> str:
+    """
+    Easy km, then an open lap-button rest, then strides with timed rest between reps.
+
+    The bridge uses Intervals ``Press lap`` so Garmin waits until you lap (e.g. while
+    relocating). The placeholder minutes are only for load estimate — the step does
+    not auto-end on that clock.
+
+    Args:
+        km: Easy distance in kilometres.
+        stride_reps: Number of stride repetitions.
+        stride_seconds: Length of each stride in seconds.
+        rest_seconds: Rest/jog between strides in seconds.
+        bridge_rest_placeholder_minutes: Nominal minutes for Intervals load
+            estimate on the open lap-rest step (does not force end time).
+        pace_ceiling: Slow end of easy Pace band (mm:ss per km).
+        pace_floor: Fast end of easy Pace band (mm:ss per km).
+
+    Returns:
+        Multi-step Intervals description ending with a newline.
+    """
+    easy = easy_run_description(
+        km, pace_ceiling=pace_ceiling, pace_floor=pace_floor
+    ).rstrip("\n")
+    # Forum syntax: "Press lap <duration> …" — ends on lap (Garmin/Suunto).
+    bridge = (
+        f"- Press lap {bridge_rest_placeholder_minutes}m intensity=rest"
     )
+    reps_header = f"{stride_reps}x"
+    stride = f"- {stride_seconds}s intensity=active"
+    rest = f"- {rest_seconds}s intensity=rest"
+    return f"{easy}\n\n{bridge}\n\n{reps_header}\n{stride}\n{rest}\n"
 
 
 def easy_bike_description(
@@ -240,11 +233,11 @@ def easy_bike_description(
     Build a simple easy Ride description (length only — no bike intervals).
 
     Args:
-        minutes (int | None): Ride duration in minutes (preferred if set).
-        km (float | None): Ride distance in km if minutes is not set.
+        minutes: Ride duration in minutes (preferred if set).
+        km: Ride distance in km if minutes is not set.
 
     Returns:
-        str: Description with ``Z2 HR`` target (guide-documented zone form).
+        Description with ``Z2 HR`` target (guide-documented zone form).
 
     Raises:
         ValueError: If neither minutes nor km is a positive length.
@@ -261,10 +254,10 @@ def extract_step_loads_and_targets(description: str) -> list[tuple[str, str]]:
     Extract ``(load, target)`` pairs from step lines in a description.
 
     Args:
-        description (str): Intervals workout description text.
+        description: Intervals workout description text.
 
     Returns:
-        list[tuple[str, str]]: One pair per ``- …`` step line that matches
+        One pair per ``- …`` step line that matches
         load + structured target.
     """
     out: list[tuple[str, str]] = []
@@ -276,11 +269,22 @@ def extract_step_loads_and_targets(description: str) -> list[tuple[str, str]]:
         # Drop trailing parenthetical note.
         if " (" in body:
             body = body.split(" (", 1)[0].strip()
+        # Open lap-button steps: cue text before duration (Intervals "Press lap …").
+        body = re.sub(r"(?i)^press\s+lap\s+", "", body)
         parts = body.split()
         if len(parts) < 2:
             continue
         load = parts[0]
-        # Target may be two tokens: "41-72% HR" or "Z2 HR" or "8:00-4:30/km Pace"
+        # Open intensity flags (rest/active/warmup) are valid without Pace/HR.
+        if len(parts) >= 2 and parts[1].lower().startswith("intensity="):
+            if len(parts) == 2 or (
+                len(parts) >= 3
+                and parts[2].upper() not in {"HR", "PACE", "LTHR"}
+                and not parts[2].endswith("%")
+            ):
+                # e.g. "- 90s intensity=rest" — not a structured Pace/HR pair
+                continue
+        # Target may be two tokens: "8:00-4:40/km Pace" or "Z2 HR" or "41-72% HR"
         if len(parts) >= 3 and parts[2].upper() in {"HR", "PACE", "LTHR"}:
             target = f"{parts[1]} {parts[2]}"
         elif len(parts) >= 2 and parts[1].upper() in {"HR", "PACE", "LTHR"}:
@@ -297,10 +301,10 @@ def assert_description_follows_guide(description: str) -> None:
     Raise if step lines do not follow the Intervals syntax guide shapes we use.
 
     Args:
-        description (str): Workout description to validate.
+        description: Workout description to validate.
 
     Returns:
-        None: Returns None when validation passes.
+        Returns None when validation passes.
 
     Raises:
         AssertionError: If a step load/target is not guide-compatible.
@@ -336,11 +340,11 @@ def normalize_workout_description(text: str, *, sport: str = "Run") -> str:
     into ``Z2 HR`` so Garmin gets an explicit HR zone target.
 
     Args:
-        text (str): Raw Intervals description.
-        sport (str): Activity type (e.g. ``Run``, ``Ride``).
+        text: Raw Intervals description.
+        sport: Activity type (e.g. ``Run``, ``Ride``).
 
     Returns:
-        str: Normalized description ending with a newline.
+        Normalized description ending with a newline.
     """
     lines = text.replace("\r\n", "\n").split("\n")
     out: list[str] = []
@@ -379,11 +383,11 @@ def as_float(value: Any, default: float = 0.0) -> float:
     Coerce a value to float with a fallback.
 
     Args:
-        value (Any): Value to convert.
-        default (float): Value returned if conversion fails.
+        value: Value to convert.
+        default: Value returned if conversion fails.
 
     Returns:
-        float: Converted number or default.
+        Converted number or default.
     """
     try:
         return float(value)

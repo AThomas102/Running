@@ -41,11 +41,12 @@ Conclusion: Intervals workout syntax does **not** support absolute bpm ranges. S
 
 ## Planning rule
 
-Easy/long Intervals descriptions:
+Easy/long Intervals descriptions (updated 2026-08-09 — athlete: HR unsuitable for easy because it can stay low at ~4:10/km):
 
 ```text
-- {km}km 41-72% HR (no faster than 4:30 per km)
+- {km}km 8:00-4:40/km Pace
 ```
 
-- Structured target: **HR `%` range** (Garmin-executable via Intervals).
-- Pace floor is trailing note text — do **not** put `4:30/km` before the distance or Intervals may mangle the step.
+- Structured target: absolute **Pace** band (**4:40–8:00/km**; no faster than 4:40; floor updated 2026-08-10).
+- **Garmin export:** Run sport settings must have **`threshold_pace`** set, or pace steps arrive on the watch as **“No Target”** even when `workout_doc` has pace (confirmed 2026-08-09; athlete Run id 2732126 set to **3:35/km** / `3.5833` MINS_KM). Forum: [pace targets lost without threshold](https://forum.intervals.icu/t/pace-targets-lost-in-garmin-export-for-api-created-running-workouts-steps-arrive-on-watch-as-no-target-parsed-correctly-in-workout-doc/130706).
+- Optional legacy HR form (not current default): `{km}km 41-72% HR` ≈ 80–140 bpm at max_hr 195.

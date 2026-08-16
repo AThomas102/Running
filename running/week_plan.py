@@ -26,10 +26,10 @@ def plans_dir(root: Path | None = None) -> Path:
     Return the repository plans directory.
 
     Args:
-        root (Path | None): Optional repo root; defaults to detected root.
+        root: Optional repo root; defaults to detected root.
 
     Returns:
-        Path: Path to the ``plans/`` directory.
+        Path to the ``plans/`` directory.
     """
     return (root or repo_root()) / "plans"
 
@@ -39,10 +39,10 @@ def find_current_week_yaml(plans: Path | None = None) -> Path:
     Find the newest ``*-week.yaml`` by Monday date in the filename.
 
     Args:
-        plans (Path | None): Plans directory; defaults to ``plans_dir()``.
+        plans: Plans directory; defaults to ``plans_dir()``.
 
     Returns:
-        Path: Path to the current week YAML.
+        Path to the current week YAML.
 
     Raises:
         FileNotFoundError: If no week YAML files exist.
@@ -60,11 +60,11 @@ def resolve_week_yaml(arg: str | Path | None = None, *, root: Path | None = None
     Resolve a week YAML from a path, Monday date, or newest file.
 
     Args:
-        arg (str | Path | None): Path, ``YYYY-MM-DD``, or None for newest.
-        root (Path | None): Optional repo root.
+        arg: Path, ``YYYY-MM-DD``, or None for newest.
+        root: Optional repo root.
 
     Returns:
-        Path: Resolved week YAML path.
+        Resolved week YAML path.
 
     Raises:
         FileNotFoundError: If the requested week file does not exist.
@@ -96,10 +96,10 @@ def sum_run_km(week: dict[str, Any]) -> float:
     Sum ``days[].run_km`` for a week plan.
 
     Args:
-        week (dict[str, Any]): Loaded week YAML mapping.
+        week: Loaded week YAML mapping.
 
     Returns:
-        float: Total run kilometres.
+        Total run kilometres.
     """
     total = 0.0
     for day in week.get("days") or []:
@@ -113,11 +113,11 @@ def validate_week_totals(week: dict[str, Any], *, path: Path | None = None) -> N
     Require ``run_total_km`` to equal the sum of day run distances.
 
     Args:
-        week (dict[str, Any]): Loaded week YAML mapping.
-        path (Path | None): Optional path for error messages.
+        week: Loaded week YAML mapping.
+        path: Optional path for error messages.
 
     Returns:
-        None: Returns None when validation passes.
+        Returns None when validation passes.
 
     Raises:
         ValueError: If the claimed total does not match the day sum.
@@ -141,10 +141,10 @@ def load_week_yaml(path: Path) -> dict[str, Any]:
     Load and validate a week plan YAML file.
 
     Args:
-        path (Path): Path to ``YYYY-MM-DD-week.yaml``.
+        path: Path to ``YYYY-MM-DD-week.yaml``.
 
     Returns:
-        dict[str, Any]: Parsed week mapping including ``days``.
+        Parsed week mapping including ``days``.
 
     Raises:
         ValueError: If the root is not a mapping, days is missing, or totals mismatch.
@@ -163,10 +163,10 @@ def week_start_date(week: dict[str, Any]) -> date:
     Return the Monday (week start) for a plan.
 
     Args:
-        week (dict[str, Any]): Loaded week YAML mapping.
+        week: Loaded week YAML mapping.
 
     Returns:
-        date: Week start date.
+        Week start date.
 
     Raises:
         ValueError: If ``week_start`` and day dates are missing.
@@ -185,10 +185,10 @@ def covers_from_week(week: dict[str, Any]) -> tuple[str, str]:
     Return inclusive ISO date coverage for the week (Mon–Sun).
 
     Args:
-        week (dict[str, Any]): Loaded week YAML mapping.
+        week: Loaded week YAML mapping.
 
     Returns:
-        tuple[str, str]: ``(oldest, newest)`` as ``YYYY-MM-DD`` strings.
+        ``(oldest, newest)`` as ``YYYY-MM-DD`` strings.
     """
     start = week_start_date(week)
     end = start + timedelta(days=6)
@@ -200,10 +200,10 @@ def format_bike_duration(minutes: int) -> str:
     Format bike duration for Intervals step syntax.
 
     Args:
-        minutes (int): Duration in minutes.
+        minutes: Duration in minutes.
 
     Returns:
-        str: Token such as ``90m`` or ``1h30m``.
+        Token such as ``90m`` or ``1h30m``.
     """
     return format_duration_minutes(minutes)
 
@@ -215,10 +215,10 @@ def bike_length(day: dict[str, Any]) -> tuple[str, str] | None:
     Prefer ``bike_min`` over ``bike_km``. No interval structure — simple length only.
 
     Args:
-        day (dict[str, Any]): One day mapping from the week plan.
+        day: One day mapping from the week plan.
 
     Returns:
-        tuple[str, str] | None: ``('min', '90')`` or ``('km', '25')``, else None.
+        ``('min', '90')`` or ``('km', '25')``, else None.
     """
     mins = int(as_float(day.get("bike_min")))
     if mins > 0:
@@ -234,10 +234,10 @@ def bike_session_from_day(day: dict[str, Any]) -> dict[str, Any] | None:
     Build a Ride upload session when ``bike_min`` or ``bike_km`` is set.
 
     Args:
-        day (dict[str, Any]): One day mapping from the week plan.
+        day: One day mapping from the week plan.
 
     Returns:
-        dict[str, Any] | None: Session dict for Intervals upload, or None.
+        Session dict for Intervals upload, or None.
     """
     length = bike_length(day)
     if length is None:
@@ -270,10 +270,10 @@ def default_easy_run_description(km: float) -> str:
     Build the default easy/long run Intervals description.
 
     Args:
-        km (float): Run distance in kilometres.
+        km: Run distance in kilometres.
 
     Returns:
-        str: Guide-compatible step with ``% HR`` range and pace note.
+        Guide-compatible step with absolute ``Pace`` band (4:40–8:00/km).
     """
     return easy_run_description(km)
 
@@ -283,10 +283,10 @@ def sessions_from_week(week: dict[str, Any]) -> list[dict[str, Any]]:
     Map plan days to Intervals upload sessions (runs + simple bike length).
 
     Args:
-        week (dict[str, Any]): Loaded week YAML mapping.
+        week: Loaded week YAML mapping.
 
     Returns:
-        list[dict[str, Any]]: Session dicts ready for calendar upsert.
+        Session dicts ready for calendar upsert.
     """
     sessions: list[dict[str, Any]] = []
     for day in week.get("days") or []:
@@ -323,11 +323,11 @@ def _fmt_day_label(d: date, dow: str) -> str:
     Format a schedule-table day label.
 
     Args:
-        d (date): Calendar date.
-        dow (str): Weekday abbreviation (e.g. ``Mon``).
+        d: Calendar date.
+        dow: Weekday abbreviation (e.g. ``Mon``).
 
     Returns:
-        str: Markdown-bold label such as ``**Mon 3**``.
+        Markdown-bold label such as ``**Mon 3**``.
     """
     return f"**{dow} {d.day}**"
 
@@ -337,10 +337,10 @@ def _run_cell(day: dict[str, Any]) -> str:
     Format the Run column cell for one day.
 
     Args:
-        day (dict[str, Any]): Day mapping.
+        day: Day mapping.
 
     Returns:
-        str: Markdown cell contents.
+        Markdown cell contents.
     """
     kind = str(day.get("run_kind") or "rest").lower()
     km_f = as_float(day.get("run_km"))
@@ -359,10 +359,10 @@ def _bike_also_label(day: dict[str, Any]) -> str | None:
     Format bike-related text for the Also column.
 
     Args:
-        day (dict[str, Any]): Day mapping.
+        day: Day mapping.
 
     Returns:
-        str | None: Label, or None if no bike note.
+        Label, or None if no bike note.
     """
     length = bike_length(day)
     if length is not None:
@@ -383,10 +383,10 @@ def _also_cell(day: dict[str, Any]) -> str:
     Format the Also column cell for one day.
 
     Args:
-        day (dict[str, Any]): Day mapping.
+        day: Day mapping.
 
     Returns:
-        str: Markdown cell contents.
+        Markdown cell contents.
     """
     parts: list[str] = []
     if day.get("sc"):
@@ -405,15 +405,28 @@ def _also_cell(day: dict[str, Any]) -> str:
     return "; ".join(parts)
 
 
+def _has_strides(day: dict[str, Any]) -> bool:
+    """Return True if the day's name or description mentions strides.
+
+    Args:
+        day: Day mapping.
+
+    Returns:
+        True when ``stride`` appears in ``run_name`` or ``description``.
+    """
+    blob = f"{day.get('run_name', '')}\n{day.get('description', '')}".lower()
+    return "stride" in blob
+
+
 def _summary_line(day: dict[str, Any]) -> str:
     """
     Format one copy-paste summary line for a day.
 
     Args:
-        day (dict[str, Any]): Day mapping.
+        day: Day mapping.
 
     Returns:
-        str: Summary line such as ``M - 12k easy + S&C``.
+        Summary line such as ``M - 12k easy + S&C``.
     """
     dow_full = str(day.get("dow") or "")
     letter = {
@@ -452,7 +465,8 @@ def _summary_line(day: dict[str, Any]) -> str:
         kind_word = "easy"
     elif kind == "interval":
         kind_word = "intervals"
-    return f"{letter} - {km_f:g}k {kind_word}{sc}{bike_bit}"
+    strides = " + strides" if _has_strides(day) else ""
+    return f"{letter} - {km_f:g}k {kind_word}{strides}{sc}{bike_bit}"
 
 
 def _grid_cell(day: dict[str, Any]) -> str:
@@ -460,10 +474,10 @@ def _grid_cell(day: dict[str, Any]) -> str:
     Format one cell in the compact week grid.
 
     Args:
-        day (dict[str, Any]): Day mapping.
+        day: Day mapping.
 
     Returns:
-        str: Compact grid text.
+        Compact grid text.
     """
     kind = str(day.get("run_kind") or "rest").lower()
     km_f = as_float(day.get("run_km"))
@@ -485,7 +499,8 @@ def _grid_cell(day: dict[str, Any]) -> str:
         word = "intervals"
     elif kind == "long":
         word = "easy"
-    return f"{km_f:g} {word}{sc}{bike_bit}"
+    strides = " + strides" if _has_strides(day) else ""
+    return f"{km_f:g} {word}{strides}{sc}{bike_bit}"
 
 
 def render_week_markdown(week: dict[str, Any], *, yaml_name: str) -> str:
@@ -493,11 +508,11 @@ def render_week_markdown(week: dict[str, Any], *, yaml_name: str) -> str:
     Render a week YAML mapping to readable markdown.
 
     Args:
-        week (dict[str, Any]): Loaded week YAML mapping.
-        yaml_name (str): Source filename for the generated header comment.
+        week: Loaded week YAML mapping.
+        yaml_name: Source filename for the generated header comment.
 
     Returns:
-        str: Full markdown document.
+        Full markdown document.
     """
     start = week_start_date(week)
     end = start + timedelta(days=6)
@@ -603,11 +618,11 @@ def write_week_markdown(yaml_path: Path, md_path: Path | None = None) -> Path:
     Render a week YAML file to its markdown companion.
 
     Args:
-        yaml_path (Path): Source ``*-week.yaml``.
-        md_path (Path | None): Optional output path; defaults to ``.md`` sibling.
+        yaml_path: Source ``*-week.yaml``.
+        md_path: Optional output path; defaults to ``.md`` sibling.
 
     Returns:
-        Path: Path written.
+        Path written.
     """
     week = load_week_yaml(yaml_path)
     out = md_path or yaml_path.with_suffix(".md")

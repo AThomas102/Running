@@ -51,22 +51,24 @@
 - Intervals workout steps: build via `running/workout_syntax.py` following [Intervals workout builder syntax](https://forum.intervals.icu/t/workout-builder-syntax-quick-guide/123701). Prefer documented targets (`% HR`, `Zx HR`, absolute Pace). Absolute bpm is **not** in that guide and must not be used as a structured target.
 - Date plans via filename (`week_start`) and YAML fields (`generated_on`, `updated_at_gmt`). Use `uv run gmt-now` for GMT tags.
 - Push to Intervals/Garmin: `uv run update-weekly-plan` (reads YAML `days` — runs and simple `bike_min`/`bike_km` Rides). Use `--intervals-only` for quality run sessions only. Never updates calendar days before today.
+- **Do not push** with `update-weekly-plan` until the athlete has **explicitly accepted** the week plan in chat. Writing/rendering YAML+markdown is fine; calendar/Garmin upload waits on acceptance. If pushed by mistake, clear the week’s managed `running-repo:` events and say so.
+- **Always paste the exact week in chat** whenever you create or revise a week plan (the copy-paste summary block and/or day-by-day table with distances). Do not only point at the file.
 
 ## Code (Python)
 
-- When adding or changing functions in this repo, give each function a brief docstring with **Args** and **Returns** (and **Raises** when relevant), for example:
+- Always document new and meaningfully changed functions with **Google-style** (PEP 257) docstrings: concise one-line summary first; expand only when behaviour is non-obvious. Use `Args:`, `Returns:`, and `Raises:` when the signature or side effects are not obvious from the name alone.
+- Do **not** put types in the docstring — types live in annotations. Do **not** use type-brief forms like `(name: str) -> Path`.
 
 ```python
 def multiply(a: int, b: int) -> int:
-    """
-    Multiply two numbers.
+    """Return the product of two numbers.
 
     Args:
-        a (int): First number.
-        b (int): Second number.
+        a: First number.
+        b: Second number.
 
     Returns:
-        int: Product of a and b.
+        Product of ``a`` and ``b``.
     """
     return a * b
 ```
@@ -74,10 +76,18 @@ def multiply(a: int, b: int) -> int:
 - Prefer modular helpers (e.g. workout string builders in `running/workout_syntax.py`) over inlining Intervals syntax in plan YAML loaders.
 - After changing workout string generation, run `uv run pytest`.
 
+## Testing
+
+- Tests must assert **intended** behaviour, not “whatever the code currently does.”
+- If a test fails, **report the failure** and diagnose (bad data vs code bug vs wrong intended assertion) before changing production code — rather than silently loosening assertions to match broken behaviour.
+- **Never** silently loosen, rewrite, or delete assertions to match broken behaviour.
+- We should **never** match broken behaviour.
+- Test docstrings stay Google-style and concise: one-line summary, then optional `Purpose:` / `Remove when:` sections (contract guarded, and when the test can be deleted).
+
 ## History
 
 - When the user provides running-related information (body feel, soreness, sleep/stress, adherence, illness, injury, goals, constraints), save a **dated verbatim** copy under `history/` (e.g. `history/2026-07-19-body-feel.md`).
-- Do not paraphrase away the original wording. A short metadata header (date received, preferably GMT via `scripts/gmt_now.py`) is fine.
+- Do not paraphrase away the original wording. A short metadata header (date received, preferably GMT via `uv run gmt-now`) is fine.
 - Never overwrite prior history entries; add new dated files.
 
 ## Research

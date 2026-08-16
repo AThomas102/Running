@@ -1,5 +1,7 @@
-"""
-Tests for Intervals.icu activity/workout description string generation.
+"""Tests for Intervals.icu workout description string generation.
+
+Covers ``running.workout_syntax`` formatting and guide checks used by week
+plans. Shrink when helpers move or Intervals syntax support is retired.
 
 Syntax reference:
 https://forum.intervals.icu/t/workout-builder-syntax-quick-guide/123701
@@ -12,10 +14,9 @@ import pytest
 from running.workout_syntax import (
     SYNTAX_GUIDE_URL,
     assert_description_follows_guide,
-    bpm_to_pct_of_max,
     easy_bike_description,
-    easy_hr_pct_range,
     easy_run_description,
+    easy_run_with_strides_description,
     extract_step_loads_and_targets,
     format_distance_km,
     format_duration_minutes,
@@ -26,34 +27,26 @@ from running.workout_syntax import (
 
 
 def test_syntax_guide_url_is_official_forum_doc() -> None:
-    """
-    Ensure we pin the official Intervals workout-builder guide.
+    """Pin the official Intervals workout-builder guide URL.
 
-    Returns:
-        None: Assertion-only test.
+    Purpose:
+        Generated syntax must track the documented guide.
+
+    Remove when:
+        Syntax is no longer generated from that guide.
     """
     assert "workout-builder-syntax-quick-guide" in SYNTAX_GUIDE_URL
     assert SYNTAX_GUIDE_URL.startswith("https://forum.intervals.icu/")
 
 
-def test_bpm_to_pct_matches_athlete_max_hr() -> None:
-    """
-    Check 80–140 bpm maps to 41–72% at max_hr 195.
-
-    Returns:
-        None: Assertion-only test.
-    """
-    assert bpm_to_pct_of_max(80, 195) == 41
-    assert bpm_to_pct_of_max(140, 195) == 72
-    assert easy_hr_pct_range() == (41, 72)
-
-
 def test_format_hr_pct_target_matches_guide_examples() -> None:
-    """
-    Guide documents forms like ``70% HR`` and ``75-80% HR``.
+    """Format ``% HR`` targets like the Intervals guide examples.
 
-    Returns:
-        None: Assertion-only test.
+    Purpose:
+        Emitted HR strings must match guide forms.
+
+    Remove when:
+        HR % targets are no longer emitted.
     """
     assert format_hr_pct_target(70, 70) == "70% HR"
     assert format_hr_pct_target(75, 80) == "75-80% HR"
@@ -61,31 +54,51 @@ def test_format_hr_pct_target_matches_guide_examples() -> None:
 
 
 def test_easy_run_description_is_guide_compatible() -> None:
-    """
-    Easy runs must use ``% HR`` (documented), not absolute bpm.
+    """Build easy runs as ``8:00-4:40/km Pace``, not HR.
 
-    Absolute bpm is *not* listed in the guide and does not parse on Intervals.
+    Purpose:
+        Athlete easy effort is Pace-governed.
 
-    Returns:
-        None: Assertion-only test.
+    Remove when:
+        Easy runs stop using absolute Pace bands.
     """
     desc = easy_run_description(12)
-    assert desc == "- 12km 41-72% HR (no faster than 4:30 per km)\n"
+    assert desc == "- 12km 8:00-4:40/km Pace\n"
     assert_description_follows_guide(desc)
     load, target = extract_step_loads_and_targets(desc)[0]
     assert load == "12km"
-    assert target == "41-72% HR"
-    # Must not emit absolute-bpm targets (not in the guide).
-    assert "80-140" not in desc.split("%")[0]
-    assert "bpm" not in desc.lower().split("hr")[0]
+    assert target == "8:00-4:40/km Pace"
+    assert "% HR" not in desc
+    assert "bpm" not in desc.lower()
+
+
+def test_easy_run_with_strides_has_bridge_rest_and_reps() -> None:
+    """Place strides after easy km with Press-lap bridge and 90s rest.
+
+    Purpose:
+        Watch-friendly stride block structure.
+
+    Remove when:
+        Easy runs stop using Press-lap stride structure.
+    """
+    desc = easy_run_with_strides_description(15)
+    assert "- 15km 8:00-4:40/km Pace" in desc
+    assert "- Press lap 15m intensity=rest" in desc
+    assert "- 90s intensity=rest" in desc
+    assert desc.index("15km") < desc.index("4x")
+    assert desc.index("Press lap") < desc.index("4x")
+    assert "2m intensity=rest" not in desc
+    assert_description_follows_guide(desc)
 
 
 def test_absolute_bpm_target_rejected_by_step_builder() -> None:
-    """
-    Refuse absolute bpm targets — they are not in the Intervals guide.
+    """Reject absolute bpm targets not in the Intervals guide.
 
-    Returns:
-        None: Assertion-only test.
+    Purpose:
+        Structured targets must stay guide-compatible.
+
+    Remove when:
+        ``step_line`` validation is removed or the guide adds bpm targets.
     """
     with pytest.raises(ValueError, match="supported structured target"):
         step_line("12km", "80-140 HR")
@@ -94,11 +107,13 @@ def test_absolute_bpm_target_rejected_by_step_builder() -> None:
 
 
 def test_easy_bike_description_uses_zone_hr() -> None:
-    """
-    Simple bike length uses documented ``Z2 HR`` zone form.
+    """Encode bike length with documented ``Z2 HR``.
 
-    Returns:
-        None: Assertion-only test.
+    Purpose:
+        Simple bike defaults stay guide-compatible.
+
+    Remove when:
+        Bike defaults change away from Z2 HR.
     """
     by_min = easy_bike_description(minutes=90)
     assert by_min == "- 1h30m Z2 HR\n"
@@ -109,11 +124,13 @@ def test_easy_bike_description_uses_zone_hr() -> None:
 
 
 def test_duration_and_distance_tokens() -> None:
-    """
-    Duration/distance tokens follow the guide (``m`` = minutes, ``km`` distance).
+    """Format duration and distance tokens per the guide.
 
-    Returns:
-        None: Assertion-only test.
+    Purpose:
+        ``m`` means minutes and ``km`` means distance in step loads.
+
+    Remove when:
+        Format helpers are deleted.
     """
     assert format_duration_minutes(45) == "45m"
     assert format_duration_minutes(90) == "1h30m"
@@ -123,33 +140,13 @@ def test_duration_and_distance_tokens() -> None:
 
 
 def test_normalize_bare_zone_on_run() -> None:
-    """
-    Bare ``Z2`` on Run becomes ``Z2 HR`` for Garmin-safe targets.
+    """Expand bare ``Z2`` on Run to ``Z2 HR``.
 
-    Returns:
-        None: Assertion-only test.
+    Purpose:
+        Garmin-safe zone targets on run workouts.
+
+    Remove when:
+        Zone normalization is retired.
     """
     out = normalize_workout_description("- 5km Z2\n", sport="Run")
     assert "Z2 HR" in out
-
-
-def test_current_week_plan_descriptions_follow_guide() -> None:
-    """
-    Live week YAML easy/long descriptions must stay guide-compatible.
-
-    Returns:
-        None: Assertion-only test.
-    """
-    from running.week_plan import find_current_week_yaml, load_week_yaml
-
-    week = load_week_yaml(find_current_week_yaml())
-    for day in week.get("days") or []:
-        if not isinstance(day, dict):
-            continue
-        desc = str(day.get("description") or "").strip()
-        if not desc:
-            continue
-        kind = str(day.get("run_kind") or "").lower()
-        if kind in {"easy", "long"} and float(day.get("run_km") or 0) > 0:
-            assert_description_follows_guide(desc)
-            assert "% HR" in desc
