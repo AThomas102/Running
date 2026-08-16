@@ -1,0 +1,133 @@
+week_start: 2026-08-10
+generated_on: 2026-08-09
+updated_at_gmt: 2026-08-10T20:19:08Z
+athlete: athletes/andrew.md
+goal: Build 64 km; easy Pace 8:00–4:40/km; strides Tue+Thu (Mon skipped — gym fatigue); deload 17 Aug
+based_on_history:
+  - history/2026-08-10-move-strides-pace-440.md
+  - history/2026-08-09-lap-rest-before-strides.md
+  - history/2026-08-09-accept-pace-easy-and-stride-structure.md
+  - history/2026-08-09-strides-for-speed.md
+  - history/2026-08-09-week-done-foot-sensitivity.md
+research_used:
+  - research/intervals-garmin-easy-hr-targets.md
+  - research/load-injury/ramskov-2024-session-spikes-5200.md
+  - research/load-injury/volume-distribution-one-long-vs-split.md
+  - research/load-injury/increasing-mileage-load-without-injury.md
+  - research/tendinopathy/silbernagel-2015-achilles-return-to-sport.md
+  - research/intensity-distribution/seiler-2010-tid-best-practice.md
+rationale: |
+  Mon strides skipped (gym fatigue) — moved to Tue. Easy floor slowed to **4:40/km**
+  (band 8:00–4:40). Strides stay at end of the easy block with Press-lap bridge (not mid-run):
+  15–16 km is long enough to warm up fully; mid-run strides are optional later if end-of-run
+  quality feels flat, but end remains the default.
+summary_title: "10th August (64 — strides Tue/Thu, 4:40 easy)"
+run_total_km: 64
+context: |
+  **Mon 10:** easy 15 km done without strides (gym tired). **Tue:** 16 km + strides makeup.
+  **Easy:** no faster than **4:40/km**. **Thu** still has strides. **Sat** long 18, no strides.
+watch_fors:
+  - "Easy = no faster than 4:40/km; slower (toward 8:00) is fine — ignore low HR"
+  - "Skip strides that day if foot is louder than baseline or still very gym-sore"
+  - "Strides = smooth fast, not all-out; follow watch rests"
+  - "Only Sat is the long"
+key_sessions: |
+  ### Easy / long runs
+
+  Watch target: **8:00–4:40/km Pace** (stay at **4:40/km or slower**). Do not use HR
+  to judge easy.
+
+  ### Strides (Tue + Thu) — after the easy km
+
+  Watch: easy km → **Press lap when ready** → **4 × (20 s + 90 s rest)**. Keep light.
+  Default placement is **end of run** (fully warmed). Mid-run not needed at 16 km.
+
+  ### Long run (Sat)
+
+  **18 km** easy Pace only — no strides. Cut to **16 km** if Friday foot louder.
+strength_and_recovery: |
+  - **S&C Mon + Thu** + short foot/calf loading
+  - Easy commute bike OK; optional longer spins Wed/Fri
+path_after: |
+  **17 Aug deload ~48–52 km**; strides **1×** on deload if foot OK. Then Base B climb
+  with **4:40** pace floor and strides 2×/week.
+evaluation_notes: |
+  Good week: ~64 km at ≤4:40/km, Tue+Thu strides done, Sat longest, foot stable.
+days:
+  - date: 2026-08-10
+    dow: Mon
+    run_km: 15
+    run_kind: easy
+    run_name: "Easy 15k"
+    start_time: "08:00"
+    description: |
+      - 15km 8:00-4:40/km Pace
+    sc: true
+    bike: commute
+    note: "Done without strides (gym fatigue); strides moved to Tue"
+  - date: 2026-08-11
+    dow: Tue
+    run_km: 16
+    run_kind: easy
+    run_name: "Easy 16k + strides"
+    start_time: "08:00"
+    description: |
+      - 16km 8:00-4:40/km Pace
+
+      - Press lap 15m intensity=rest
+
+      4x
+      - 20s intensity=active
+      - 90s intensity=rest
+    sc: false
+    bike: commute
+    note: "Strides moved from Mon; lap to start strides"
+  - date: 2026-08-12
+    dow: Wed
+    run_km: 0
+    run_kind: rest
+    sc: false
+    bike: commute
+    note: Rest or easy commute bike only (no run)
+  - date: 2026-08-13
+    dow: Thu
+    run_km: 15
+    run_kind: easy
+    run_name: "Easy 15k + strides"
+    start_time: "08:00"
+    description: |
+      - 15km 8:00-4:40/km Pace
+
+      - Press lap 15m intensity=rest
+
+      4x
+      - 20s intensity=active
+      - 90s intensity=rest
+    sc: true
+    bike: commute
+    note: "S&C + foot/calf; skip strides if foot loud; lap to start strides"
+  - date: 2026-08-14
+    dow: Fri
+    run_km: 0
+    run_kind: rest
+    sc: false
+    bike: commute
+    note: Rest (+ easy commute bike OK)
+  - date: 2026-08-15
+    dow: Sat
+    run_km: 18
+    run_kind: long
+    run_name: "Long 18k easy"
+    start_time: "08:00"
+    description: |
+      - 18km 8:00-4:40/km Pace
+    sc: false
+    bike: none
+    note: "Only distance peak; cut to 16 if Friday foot louder than baseline"
+  - date: 2026-08-16
+    dow: Sun
+    run_km: 0
+    run_kind: rest
+    sc: false
+    bike: none
+    note: ""

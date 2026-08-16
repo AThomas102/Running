@@ -15,7 +15,7 @@ Primary athlete for this repo. Update this file when durable facts change (goals
 
 - **A race:** Half marathon on **15 Nov 2026**
 - Concurrent focus: 5k fitness and half-marathon readiness
-- Current phase (Jul 2026): base / rebuild — no near-term races; build mileage to handle higher load later
+- Current phase (Jul–Aug 2026): base / rebuild — no near-term races; build mileage to handle higher load later; Base A ends with **deload week of 17 Aug 2026** after an over-plan ~73.5 km week (incl. 24.7 km long)
 - Medium-term volume target: steadily return toward **~100 km/week** (high mileage + quality sessions historically worked well)
 - Critical lesson from past peak: **easy runs were too hard**, which made high mileage unsustainable — keep easy truly easy
 - **1+ year outlook:** [plans/long-term-roadmap.md](../plans/long-term-roadmap.md) — recent **15:31 5k** and historic **~70 min HM** make sub-15 / sub-70 (and faster) realistic with sustainable volume; agents must track block ends, peaks, and rest
@@ -33,19 +33,22 @@ Primary athlete for this repo. Update this file when durable facts change (goals
 | ~Nov 2023 | Poznan 10k | 33:26 |
 | ~Jun 2023 | Morecambe Parkrun 5k | 17:51 |
 
-## Recent load context (Jun–Jul 2026)
+## Recent load context (Jun–Aug 2026)
 
 - **8–14 Jun:** spiked to **~87 km** run (long **24.3 km**; multi-run days) — too much too quickly
 - Following weeks: cut to **~39 → ~32 → ~27 km** run while keeping commute cycling
 - Then rebuilt: ~23–26 km → **~40 km** (week of 13 Jul) → ~50s (week of 20 Jul) → week of 27 Jul **~56 km** with Sun 8 km makeup after short Sat; **slight foot tightness** after that 8 km (body otherwise fresh)
+- **Week of 3 Aug (hold 57 planned):** actual main days **~55.4 km** (Mon 12.0 / Tue 14.4 / Thu 14.2 / Sat long 14.8); avg HR **130–133**; commute bike Mon–Thu. Residual **intermittent left-foot sensitivity** (warms through; athlete does not feel it needs rest-to-heal). Detail: [history/2026-08-09-intervals-week-of-2026-08-03.md](../history/2026-08-09-intervals-week-of-2026-08-03.md)
 - Full June calendar: [history/2026-06-june-running-calendar.md](../history/2026-06-june-running-calendar.md)
 - Combined run+bike often high from commuting; long bike used when run volume low (e.g. **47 km** ride 5 Jul); mid-week 22 Jul included **16.5 km** easy bike on a no-run day
+- **Week of 10 Aug:** planned **64 km**; actual **~73.5 km** (Mon 15.0 / Tue 17.2 / Thu 16.6 / Sat **24.7**); foot reported fine after. Detail: [history/2026-08-16-week-done-over-mileage-foot-fine.md](../history/2026-08-16-week-done-over-mileage-foot-fine.md)
+- **Current block (Aug 2026):** base / mileage rebuild — easy-only; **deload ~56 km** week of 17 Aug (Mon run off after the 24.7 long), then Base B climb toward **~68–70** if foot stays quiet
 
 ## Training preferences and anchors
 
-- Keep easy runs easy (conversation / Zone 2). Past lesson: easy runs too hard made high mileage unsustainable.
-- **Easy run watch targets:** HR **80–140 bpm** via Intervals as **`41-72% HR`** (Run `max_hr` 195; absolute bpm is not parsed — see [research/intervals-garmin-easy-hr-targets.md](../research/intervals-garmin-easy-hr-targets.md)). Pace cue: **no faster than 4:30/km**. Prefer feel if either conflicts with conversation effort.
-- Historical tempo HR cap **&lt;168** when doing quality
+- Keep easy runs easy (conversation / feel). Past lesson: easy runs too hard made high mileage unsustainable.
+- **Easy run watch targets:** absolute Pace **`8:00-4:40/km Pace`** (stay **no faster than 4:40/km**; slower toward 8:00 is fine). **Do not use HR** to cap easy — athlete can hold very low HR even at ~4:10/km. Intervals **Run threshold_pace** set to **3:35/km** (2026-08-09) so Garmin exports pace targets. See [research/intervals-garmin-easy-hr-targets.md](../research/intervals-garmin-easy-hr-targets.md).
+- Historical tempo HR cap **&lt;168** when doing quality (HR still useful for hard sessions)
 - Deload / easier week every **3–4 weeks**
 - S&C Mon/Thu; use [strength-and-conditioning.md](../library/strength-and-conditioning.md)
 
@@ -63,4 +66,4 @@ Primary athlete for this repo. Update this file when durable facts change (goals
 - S&C: [library/strength-and-conditioning.md](../library/strength-and-conditioning.md)
 - Historical plans: [plans/archive/old-running-plans.md](../plans/archive/old-running-plans.md)
 - Zones: [plans/archive/running-heart-rate-zones.md](../plans/archive/running-heart-rate-zones.md)
-- History: [2026-06-june-running-calendar.md](../history/2026-06-june-running-calendar.md), [2026-07-19-training-history-and-goals.md](../history/2026-07-19-training-history-and-goals.md), [2026-07-19-body-feel-and-mileage-goals.md](../history/2026-07-19-body-feel-and-mileage-goals.md), [2026-07-19-schedule-constraints.md](../history/2026-07-19-schedule-constraints.md), [2026-07-19-recent-race-marks.md](../history/2026-07-19-recent-race-marks.md), [2026-07-19-commute-constraint.md](../history/2026-07-19-commute-constraint.md), [2026-07-23-midweek-checkin.md](../history/2026-07-23-midweek-checkin.md), [2026-08-02-week-checkin.md](../history/2026-08-02-week-checkin.md), [2026-08-02-post-8k-foot-and-easy-targets.md](../history/2026-08-02-post-8k-foot-and-easy-targets.md)
+- History: [2026-06-june-running-calendar.md](../history/2026-06-june-running-calendar.md), [2026-07-19-training-history-and-goals.md](../history/2026-07-19-training-history-and-goals.md), [2026-07-19-body-feel-and-mileage-goals.md](../history/2026-07-19-body-feel-and-mileage-goals.md), [2026-07-19-schedule-constraints.md](../history/2026-07-19-schedule-constraints.md), [2026-07-19-recent-race-marks.md](../history/2026-07-19-recent-race-marks.md), [2026-07-19-commute-constraint.md](../history/2026-07-19-commute-constraint.md), [2026-07-23-midweek-checkin.md](../history/2026-07-23-midweek-checkin.md), [2026-08-02-week-checkin.md](../history/2026-08-02-week-checkin.md), [2026-08-02-post-8k-foot-and-easy-targets.md](../history/2026-08-02-post-8k-foot-and-easy-targets.md), [2026-08-09-week-done-foot-sensitivity.md](../history/2026-08-09-week-done-foot-sensitivity.md), [2026-08-09-intervals-week-of-2026-08-03.md](../history/2026-08-09-intervals-week-of-2026-08-03.md), [2026-08-16-week-done-over-mileage-foot-fine.md](../history/2026-08-16-week-done-over-mileage-foot-fine.md), [2026-08-16-accept-deload-56.md](../history/2026-08-16-accept-deload-56.md)

@@ -2,7 +2,7 @@
 
 ```yaml
 written_on: 2026-07-19
-updated_at_gmt: 2026-07-19T18:55:57Z
+updated_at_gmt: 2026-08-16T11:06:30Z
 athlete: athletes/andrew.md
 horizon: 1+ years from Jul 2026 (through ~late 2027)
 assumptions: |
@@ -11,6 +11,32 @@ assumptions: |
   no prolonged injury layoff. Anchors include recent 15:31 5k and historic ~70 min HM,
   plus 8:53 3k and 33:26 10k. Not guarantees — revise after Nov 2026 HM and new trials.
 ```
+
+## Current block status (updated 16 Aug 2026)
+
+| Item | Status |
+|------|--------|
+| **Phase** | **Base A deload** (easy volume; quality still deferred) |
+| **Started** | ~13 Jul 2026 after June spike cutback |
+| **Recent weeks** | ~40 (13 Jul) → ~50s (20 Jul) → messy ~56 away (27 Jul) → hold **~55** (3 Aug) → build planned 64, **actual ~73.5** (10 Aug; long **24.7**) |
+| **This week** | **Deload ~56 km** (17 Aug) — Mon run off after Saturday long; one long **22**; strides **1×** Thu |
+| **Next** | Base B climb toward **~68–70** (24 Aug) if foot stays quiet; long **~20–22**, not back to 24 |
+| **Strides** | **1× this week** (Thu) if foot quiet |
+| **Intervals / tempo** | **Not yet** — first real quality once durable mid/high-60s–~70 km easy weeks |
+| **A-race** | Half **15 Nov 2026** |
+
+## Roadmap to 15 Nov 2026 (HM)
+
+| When | Phase | Volume (run) | Quality | Long run |
+|------|--------|--------------|---------|----------|
+| **Now – mid Aug** | Base A | ~55 → 64 (actual ~73.5) → **deload ~56** | Easy only; strides 1× on deload | Last long **24.7** was a spike — hold **~22** on deload (not 24) |
+| **Late Aug – mid Sep** | Base B | Climb **~65 → ~75** with deload every 3–4 weeks | **Strides** 1–2×/week (4–6×20–30 s); still no hard intervals | ~18 → ~22 |
+| **Mid Sep – mid Oct** | Threshold / HM-specific | Hold **~75–85** (foot permitting) | **1 quality/week**: tempo/cruise or light AC; keep easies easy | ~22 → ~26–28 |
+| **Late Oct – early Nov** | Peak + taper | Peak then **cut volume ~40–60%** | Sharpen / race-pace touches; less total hard | Last long ~28–32 then taper |
+| **15 Nov** | A-race | — | Half marathon | — |
+| **Post-race** | Recovery | Easy 1–2 weeks | No quality | Short |
+
+**Order of intensity return (non-negotiable for this rebuild):** volume/frequency stable → **strides** → tempo/threshold → **intervals/VO₂**. Do not add intervals in the same week as a big mileage jump.
 
 ## Anchors (what we know)
 
@@ -25,10 +51,10 @@ assumptions: |
 
 ## Near term (now → 15 Nov 2026 HM)
 
-Already in motion via weekly plans — not repeated in detail here.
+See **Roadmap to 15 Nov 2026** table above for the live calendar. Load-progression evidence: [research/load-injury/increasing-mileage-load-without-injury.md](../research/load-injury/increasing-mileage-load-without-injury.md).
 
-- Rebuild toward **~80–100 km** with **easy = easy**, fewer hard days while foot settles, then reintroduce quality.
-- HM block later: long runs toward ~28–32 km, steady/tempo work, **peak + taper** into **15 Nov 2026**, then **1–2 easy recovery weeks**.
+- Rebuild toward **~80–100 km** with **easy = easy**, then reintroduce quality in order: strides → threshold → intervals.
+- HM block: long runs toward ~28–32 km, steady/tempo work, **peak + taper** into **15 Nov 2026**, then **1–2 easy recovery weeks**.
 
 **HM target (15 Nov 2026):** reclaim **sub-70** as the solid goal if the build is clean; stretch **~68–69** if long runs and threshold are strong in Oct. A cautious floor if foot limits volume: still aim to race controlled rather than force a PB.
 
