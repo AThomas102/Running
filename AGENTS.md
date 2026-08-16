@@ -21,7 +21,7 @@
 
 1. Read the relevant profile in `athletes/` (goals, constraints, PBs, anchors).
 2. Read recent entries in `history/` (verbatim athlete feedback).
-3. If present, read `.cache/intervals/<YYYY-MM>/month.md` for recent completed load (run/ride km, sessions). Cache is gitignored and may be missing on a fresh clone — run `uv run fetch-activities YYYY-MM` first (after `uv sync`). Still use `history/` for body-feel and constraints; the cache is load evidence only.
+3. If present, read `.cache/intervals/<YYYY-MM>/month.md` for recent completed load (run/ride km, sessions). Cache is gitignored and may be missing on a fresh clone — run `uv run fetch-activities YYYY-MM` first (after `uv sync`). Still use `history/` for body-feel and constraints; the cache is load evidence only. These Intervals dumps stay in local `.cache/` and are not PersonalData.
 4. Read the current week plan in `plans/` (`*-week.yaml`, and generated `.md` if useful).
 5. Read relevant material in `library/` and `research/`.
 6. Confirm you have enough tailored info (see Key goal). If not, stop and ask.
