@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from running.gmt_now import main as gmt_now_main
-from running.week_plan import load_week_yaml, write_week_markdown
+from running.week_plan import load_week, write_week_markdown
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "weeks"
 
@@ -23,7 +23,6 @@ def test_gmt_now_cli_prints_iso_date(capsys, monkeypatch) -> None:
     Remove when:
         ``gmt-now`` is retired.
     """
-    # Isolate from pytest's own argv (e.g. ``-q``) so argparse sees a clean CLI.
     monkeypatch.setattr(sys, "argv", ["gmt-now"])
     gmt_now_main()
     out = capsys.readouterr().out
@@ -46,11 +45,11 @@ def test_render_week_plan_writes_md_for_fixture(tmp_path: Path) -> None:
     Remove when:
         Markdown render is dropped.
     """
-    src = FIXTURES / "valid-week.yaml"
-    yaml_path = tmp_path / "2026-09-07-week.yaml"
-    yaml_path.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
-    week = load_week_yaml(yaml_path)
-    md_path = write_week_markdown(yaml_path, tmp_path / "2026-09-07-week.md")
+    src = FIXTURES / "valid-week.json"
+    json_path = tmp_path / "2026-09-07-week.json"
+    json_path.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+    week = load_week(json_path)
+    md_path = write_week_markdown(json_path, tmp_path / "2026-09-07-week.md")
     text = md_path.read_text(encoding="utf-8")
     assert md_path.is_file()
     assert f"**~{week['run_total_km']}**" in text

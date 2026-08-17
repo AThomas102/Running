@@ -1,4 +1,4 @@
-"""Unit tests for week YAML load, totals, sessions, and path resolution.
+"""Unit tests for week JSON load, totals, sessions, and path resolution.
 
 Guards plan SSOT contracts in ``running.week_plan`` offline. Shrink or drop
 tests only when the matching API or athlete policy is intentionally retired.
@@ -6,18 +6,18 @@ tests only when the matching API or athlete policy is intentionally retired.
 
 from __future__ import annotations
 
+import json
 from datetime import date
 from pathlib import Path
 
 import pytest
-import yaml
 
 from running.week_plan import (
     bike_session_from_day,
     covers_from_week,
-    find_current_week_yaml,
-    load_week_yaml,
-    resolve_week_yaml,
+    find_current_week_json,
+    load_week,
+    resolve_week_json,
     sessions_from_week,
     sum_run_km,
     validate_week_totals,
@@ -63,12 +63,12 @@ def test_sum_and_validate_week_totals_match() -> None:
     """Require ``run_total_km`` to equal the sum of ``days[].run_km``.
 
     Purpose:
-        Enforce the AGENTS arithmetic check on week YAML.
+        Enforce the AGENTS arithmetic check on week JSON.
 
     Remove when:
         Week plans stop using ``run_total_km``.
     """
-    week = yaml.safe_load((FIXTURES / "valid-week.yaml").read_text(encoding="utf-8"))
+    week = json.loads((FIXTURES / "valid-week.json").read_text(encoding="utf-8"))
     assert sum_run_km(week) == pytest.approx(42.0)
     validate_week_totals(week)
 
@@ -77,13 +77,13 @@ def test_validate_week_totals_rejects_mismatch() -> None:
     """Raise when claimed totals disagree with day distances.
 
     Purpose:
-        Prevent shipping inconsistent YAML by surfacing both numbers.
+        Prevent shipping inconsistent JSON by surfacing both numbers.
 
     Remove when:
         Totals validation moves elsewhere.
     """
-    week = yaml.safe_load(
-        (FIXTURES / "mismatched-total-week.yaml").read_text(encoding="utf-8")
+    week = json.loads(
+        (FIXTURES / "mismatched-total-week.json").read_text(encoding="utf-8")
     )
     with pytest.raises(ValueError, match=r"run_total_km \(99\).*days\[\].*run_km \(28\)"):
         validate_week_totals(week)
@@ -104,8 +104,8 @@ def test_validate_week_totals_requires_run_total_km() -> None:
         validate_week_totals(week)
 
 
-def test_load_week_yaml_rejects_bad_root_or_days(tmp_path: Path) -> None:
-    """Reject non-mapping roots and YAML without a ``days`` list.
+def test_load_week_rejects_bad_root_or_days(tmp_path: Path) -> None:
+    """Reject non-object roots and JSON without a ``days`` list.
 
     Purpose:
         Keep the loader schema strict.
@@ -113,28 +113,30 @@ def test_load_week_yaml_rejects_bad_root_or_days(tmp_path: Path) -> None:
     Remove when:
         The loader schema changes.
     """
-    bad_root = tmp_path / "list.yaml"
-    bad_root.write_text("- just a list\n", encoding="utf-8")
-    with pytest.raises(ValueError, match="mapping"):
-        load_week_yaml(bad_root)
+    bad_root = tmp_path / "list.json"
+    bad_root.write_text("[]\n", encoding="utf-8")
+    with pytest.raises(ValueError):
+        load_week(bad_root)
 
-    no_days = tmp_path / "no-days.yaml"
-    no_days.write_text("week_start: 2026-09-07\nrun_total_km: 0\n", encoding="utf-8")
+    no_days = tmp_path / "no-days.json"
+    no_days.write_text(
+        '{"week_start": "2026-09-07", "run_total_km": 0}\n', encoding="utf-8"
+    )
     with pytest.raises(ValueError, match="days"):
-        load_week_yaml(no_days)
+        load_week(no_days)
 
 
-def test_load_week_yaml_rejects_mismatched_fixture() -> None:
+def test_load_week_rejects_mismatched_fixture() -> None:
     """Refuse mismatched fixtures via load-time validation.
 
     Purpose:
-        ``load_week_yaml`` must not return arithmetically invalid weeks.
+        ``load_week`` must not return arithmetically invalid weeks.
 
     Remove when:
         Load no longer validates totals.
     """
     with pytest.raises(ValueError, match="run_total_km"):
-        load_week_yaml(FIXTURES / "mismatched-total-week.yaml")
+        load_week(FIXTURES / "mismatched-total-week.json")
 
 
 def test_covers_from_week_is_mon_through_sun() -> None:
@@ -244,7 +246,7 @@ def test_bike_session_from_day_prefers_bike_min() -> None:
     assert bike_session_from_day({"date": "2026-09-07"}) is None
 
 
-def test_resolve_week_yaml_newest_and_by_date(tmp_path: Path) -> None:
+def test_resolve_week_json_newest_and_by_date(tmp_path: Path) -> None:
     """Resolve newest week by filename date, or an explicit Monday date.
 
     Purpose:
@@ -255,17 +257,13 @@ def test_resolve_week_yaml_newest_and_by_date(tmp_path: Path) -> None:
     """
     plans = tmp_path / "plans"
     plans.mkdir()
-    older = plans / "2026-08-03-week.yaml"
-    newer = plans / "2026-08-10-week.yaml"
-    older.write_text(
-        "week_start: 2026-08-03\nrun_total_km: 0\ndays: []\n", encoding="utf-8"
-    )
-    newer.write_text(
-        "week_start: 2026-08-10\nrun_total_km: 0\ndays: []\n", encoding="utf-8"
-    )
+    older = plans / "2026-08-03-week.json"
+    newer = plans / "2026-08-10-week.json"
+    older.write_text("{}", encoding="utf-8")
+    newer.write_text("{}", encoding="utf-8")
 
-    assert find_current_week_yaml(plans) == newer
-    assert resolve_week_yaml(None, root=tmp_path) == newer
-    assert resolve_week_yaml("2026-08-03", root=tmp_path) == older
+    assert find_current_week_json(plans) == newer
+    assert resolve_week_json(None, root=tmp_path) == newer
+    assert resolve_week_json("2026-08-03", root=tmp_path) == older
     with pytest.raises(FileNotFoundError):
-        resolve_week_yaml("2026-01-01", root=tmp_path)
+        resolve_week_json("2026-01-01", root=tmp_path)

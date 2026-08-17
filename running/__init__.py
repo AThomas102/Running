@@ -1,1 +1,1 @@
-"""Running plan tooling (Intervals fetch/push, week YAML render)."""
+"""Running plan tooling (Intervals fetch/push, week JSON render)."""

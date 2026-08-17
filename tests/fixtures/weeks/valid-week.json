@@ -1,0 +1,82 @@
+{
+  "week_start": "2026-09-07",
+  "generated_on": "2026-09-06",
+  "athlete": "athletes/andrew.md",
+  "goal": "Fixture week for offline tests",
+  "summary_title": "Fixture valid week",
+  "run_total_km": 42,
+  "days": [
+    {
+      "date": "2026-09-07",
+      "dow": "Mon",
+      "run_km": 12,
+      "run_kind": "easy",
+      "run_name": "Easy 12k + strides",
+      "start_time": "08:00",
+      "description": "- 12km 8:00-4:40/km Pace\n\n- Press lap 15m intensity=rest\n\n4x\n- 20s intensity=active\n- 90s intensity=rest\n",
+      "sc": true,
+      "bike": "commute",
+      "note": ""
+    },
+    {
+      "date": "2026-09-08",
+      "dow": "Tue",
+      "run_km": 0,
+      "run_kind": "rest",
+      "sc": false,
+      "bike": "commute",
+      "note": "Rest"
+    },
+    {
+      "date": "2026-09-09",
+      "dow": "Wed",
+      "run_km": 14,
+      "run_kind": "easy",
+      "run_name": "Easy 14k",
+      "start_time": "08:00",
+      "description": "- 14km 8:00-4:40/km Pace\n",
+      "sc": false,
+      "bike": "commute",
+      "note": ""
+    },
+    {
+      "date": "2026-09-10",
+      "dow": "Thu",
+      "run_km": 0,
+      "run_kind": "rest",
+      "sc": false,
+      "bike": "commute",
+      "note": "Rest"
+    },
+    {
+      "date": "2026-09-11",
+      "dow": "Fri",
+      "run_km": 0,
+      "run_kind": "rest",
+      "sc": false,
+      "bike": "commute",
+      "note": "Rest"
+    },
+    {
+      "date": "2026-09-12",
+      "dow": "Sat",
+      "run_km": 16,
+      "run_kind": "long",
+      "run_name": "Long 16k easy",
+      "start_time": "08:00",
+      "description": "- 16km 8:00-4:40/km Pace\n",
+      "sc": false,
+      "bike": "none",
+      "note": ""
+    },
+    {
+      "date": "2026-09-13",
+      "dow": "Sun",
+      "run_km": 0,
+      "run_kind": "rest",
+      "sc": false,
+      "bike": "none",
+      "note": ""
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-"""Load and render weekly plan YAML (single source of truth)."""
+"""Load and render weekly plan JSON (single source of truth)."""
 
 from __future__ import annotations
 
@@ -7,9 +7,8 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
-import yaml
-
-from running.intervals_lib import repo_root
+from running.paths import data_root
+from running.schema_io import load as load_json_schema
 from running.workout_syntax import (
     as_float,
     easy_bike_description,
@@ -22,73 +21,71 @@ BIKE_KINDS = frozenset({"commute", "easy"})
 
 
 def plans_dir(root: Path | None = None) -> Path:
-    """
-    Return the repository plans directory.
+    """Return the live plans directory under the personal-data root.
 
     Args:
-        root: Optional repo root; defaults to detected root.
+        root: Optional repo/fixture root. When set, use ``root/plans``
+            (tests). When omitted, use ``data_root()/plans``.
 
     Returns:
         Path to the ``plans/`` directory.
     """
-    return (root or repo_root()) / "plans"
+    return data_root(root) / "plans"
 
 
-def find_current_week_yaml(plans: Path | None = None) -> Path:
-    """
-    Find the newest ``*-week.yaml`` by Monday date in the filename.
+def find_current_week_json(plans: Path | None = None) -> Path:
+    """Find the newest ``*-week.json`` by Monday date in the filename.
 
     Args:
         plans: Plans directory; defaults to ``plans_dir()``.
 
     Returns:
-        Path to the current week YAML.
+        Path to the current week JSON.
 
     Raises:
-        FileNotFoundError: If no week YAML files exist.
+        FileNotFoundError: If no week JSON files exist.
     """
     d = plans or plans_dir()
-    candidates = sorted(d.glob("*-week.yaml"), key=lambda p: p.name)
-    candidates = [p for p in candidates if p.name != "TEMPLATE.yaml"]
+    candidates = sorted(d.glob("*-week.json"), key=lambda p: p.name)
+    candidates = [p for p in candidates if p.name != "week.json"]
     if not candidates:
-        raise FileNotFoundError(f"No *-week.yaml under {d}")
+        raise FileNotFoundError(f"No *-week.json under {d}")
     return candidates[-1]
 
 
-def resolve_week_yaml(arg: str | Path | None = None, *, root: Path | None = None) -> Path:
-    """
-    Resolve a week YAML from a path, Monday date, or newest file.
+def resolve_week_json(arg: str | Path | None = None, *, root: Path | None = None) -> Path:
+    """Resolve a week JSON from a path, Monday date, or newest file.
 
     Args:
         arg: Path, ``YYYY-MM-DD``, or None for newest.
-        root: Optional repo root.
+        root: Optional repo/fixture root for ``plans_dir``.
 
     Returns:
-        Resolved week YAML path.
+        Resolved week JSON path.
 
     Raises:
         FileNotFoundError: If the requested week file does not exist.
     """
     d = plans_dir(root)
     if arg is None:
-        return find_current_week_yaml(d)
+        return find_current_week_json(d)
     p = Path(arg)
-    if p.suffix == ".yaml" and p.is_file():
+    if p.suffix == ".json" and p.is_file():
         return p
-    if p.suffix == ".yaml":
+    if p.suffix == ".json":
         cand = d / p.name
         if cand.is_file():
             return cand
     text = str(arg).strip()
     if len(text) == 10 and text[4] == "-" and text[7] == "-":
-        cand = d / f"{text}-week.yaml"
+        cand = d / f"{text}-week.json"
         if cand.is_file():
             return cand
-        raise FileNotFoundError(f"No week yaml for {text}: {cand}")
+        raise FileNotFoundError(f"No week json for {text}: {cand}")
     cand = d / text
     if cand.is_file():
         return cand
-    raise FileNotFoundError(f"Week yaml not found: {arg}")
+    raise FileNotFoundError(f"Week json not found: {arg}")
 
 
 def sum_run_km(week: dict[str, Any]) -> float:
@@ -96,7 +93,7 @@ def sum_run_km(week: dict[str, Any]) -> float:
     Sum ``days[].run_km`` for a week plan.
 
     Args:
-        week: Loaded week YAML mapping.
+        week: Loaded week mapping.
 
     Returns:
         Total run kilometres.
@@ -113,7 +110,7 @@ def validate_week_totals(week: dict[str, Any], *, path: Path | None = None) -> N
     Require ``run_total_km`` to equal the sum of day run distances.
 
     Args:
-        week: Loaded week YAML mapping.
+        week: Loaded week mapping.
         path: Optional path for error messages.
 
     Returns:
@@ -136,22 +133,24 @@ def validate_week_totals(week: dict[str, Any], *, path: Path | None = None) -> N
         )
 
 
-def load_week_yaml(path: Path) -> dict[str, Any]:
-    """
-    Load and validate a week plan YAML file.
+def load_week(path: Path) -> dict[str, Any]:
+    """Load and validate a week plan JSON file.
+
+    Schema-validates against ``schemas/week.schema.json``, then checks
+    ``run_total_km`` against the day sum.
 
     Args:
-        path: Path to ``YYYY-MM-DD-week.yaml``.
+        path: Path to ``YYYY-MM-DD-week.json``.
 
     Returns:
         Parsed week mapping including ``days``.
 
     Raises:
-        ValueError: If the root is not a mapping, days is missing, or totals mismatch.
+        ValueError: If the file fails the schema or totals mismatch.
     """
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    data = load_json_schema(path, "week")
     if not isinstance(data, dict):
-        raise ValueError(f"{path}: expected a YAML mapping at the root")
+        raise ValueError(f"{path}: expected a JSON object at the root")
     if not isinstance(data.get("days"), list):
         raise ValueError(f"{path}: days: must be a list")
     validate_week_totals(data, path=path)
@@ -163,7 +162,7 @@ def week_start_date(week: dict[str, Any]) -> date:
     Return the Monday (week start) for a plan.
 
     Args:
-        week: Loaded week YAML mapping.
+        week: Loaded week mapping.
 
     Returns:
         Week start date.
@@ -185,7 +184,7 @@ def covers_from_week(week: dict[str, Any]) -> tuple[str, str]:
     Return inclusive ISO date coverage for the week (Mon–Sun).
 
     Args:
-        week: Loaded week YAML mapping.
+        week: Loaded week mapping.
 
     Returns:
         ``(oldest, newest)`` as ``YYYY-MM-DD`` strings.
@@ -283,7 +282,7 @@ def sessions_from_week(week: dict[str, Any]) -> list[dict[str, Any]]:
     Map plan days to Intervals upload sessions (runs + simple bike length).
 
     Args:
-        week: Loaded week YAML mapping.
+        week: Loaded week mapping.
 
     Returns:
         Session dicts ready for calendar upsert.
@@ -503,13 +502,12 @@ def _grid_cell(day: dict[str, Any]) -> str:
     return f"{km_f:g} {word}{strides}{sc}{bike_bit}"
 
 
-def render_week_markdown(week: dict[str, Any], *, yaml_name: str) -> str:
-    """
-    Render a week YAML mapping to readable markdown.
+def render_week_markdown(week: dict[str, Any], *, source_name: str) -> str:
+    """Render a week mapping to readable markdown.
 
     Args:
-        week: Loaded week YAML mapping.
-        yaml_name: Source filename for the generated header comment.
+        week: Loaded week mapping.
+        source_name: Source filename for the generated header comment.
 
     Returns:
         Full markdown document.
@@ -523,7 +521,7 @@ def render_week_markdown(week: dict[str, Any], *, yaml_name: str) -> str:
     days = [d for d in (week.get("days") or []) if isinstance(d, dict)]
 
     lines: list[str] = [
-        f"<!-- generated from plans/{yaml_name} — edit the YAML -->",
+        f"<!-- generated from plans/{source_name} — edit the JSON -->",
         "",
         f"# Training plan — week of {title_date}",
         "",
@@ -533,7 +531,7 @@ def render_week_markdown(week: dict[str, Any], *, yaml_name: str) -> str:
         f"covers: {start.isoformat()} to {end.isoformat()}",
         f"athlete: {week.get('athlete', '')}",
         f"goal: {goal}",
-        "source: " + yaml_name,
+        "source: " + source_name,
         "```",
         "",
         "## Summary (copy-paste)",
@@ -596,7 +594,7 @@ def render_week_markdown(week: dict[str, Any], *, yaml_name: str) -> str:
 
     lines.extend(["", "## Key sessions", ""])
     key = str(week.get("key_sessions") or "").strip()
-    lines.append(key if key else "_See day descriptions in the YAML._")
+    lines.append(key if key else "_See day descriptions in the JSON._")
 
     lines.extend(["", "## Strength and recovery", ""])
     strength = str(week.get("strength_and_recovery") or "").strip()
@@ -613,21 +611,20 @@ def render_week_markdown(week: dict[str, Any], *, yaml_name: str) -> str:
     return "\n".join(lines)
 
 
-def write_week_markdown(yaml_path: Path, md_path: Path | None = None) -> Path:
-    """
-    Render a week YAML file to its markdown companion.
+def write_week_markdown(json_path: Path, md_path: Path | None = None) -> Path:
+    """Render a week JSON file to its markdown companion.
 
     Args:
-        yaml_path: Source ``*-week.yaml``.
+        json_path: Source ``*-week.json``.
         md_path: Optional output path; defaults to ``.md`` sibling.
 
     Returns:
         Path written.
     """
-    week = load_week_yaml(yaml_path)
-    out = md_path or yaml_path.with_suffix(".md")
+    week = load_week(json_path)
+    out = md_path or json_path.with_suffix(".md")
     out.write_text(
-        render_week_markdown(week, yaml_name=yaml_path.name),
+        render_week_markdown(week, source_name=json_path.name),
         encoding="utf-8",
     )
     return out

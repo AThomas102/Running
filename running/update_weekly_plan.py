@@ -20,12 +20,7 @@ from running.intervals_lib import (
     sessions_date_range,
     upsert_event,
 )
-from running.week_plan import (
-    covers_from_week,
-    load_week_yaml,
-    resolve_week_yaml,
-    sessions_from_week,
-)
+from running.week_plan import covers_from_week, load_week, resolve_week_json, sessions_from_week
 
 # HR zones + intensity flags → structured steps Garmin can execute.
 # Bare "Z2" alone is treated as power and will not guide a run watch correctly.
@@ -42,19 +37,6 @@ Cooldown
 """
 
 
-def find_current_week_plan(plans_dir: Path) -> Path:
-    """
-    Resolve the newest week plan YAML given a plans directory.
-
-    Args:
-        plans_dir: Path to the ``plans/`` directory.
-
-    Returns:
-        Newest ``*-week.yaml``.
-    """
-    return resolve_week_yaml(None, root=plans_dir.parent)
-
-
 def refuse_past_plan(
     meta: dict,
     sessions: list[dict],
@@ -65,7 +47,7 @@ def refuse_past_plan(
     Hard-error if the plan's covered range / all sessions are before today.
 
     Args:
-        meta: Week YAML mapping (or legacy frontmatter).
+        meta: Week mapping (or legacy frontmatter).
         sessions: Upload session dicts.
         today: Local "today" for past-day protection.
 
@@ -444,7 +426,7 @@ def main() -> int:
         "--plan",
         type=Path,
         default=None,
-        help="Path or YYYY-MM-DD for plans/*-week.yaml (default: newest)",
+        help="Path or YYYY-MM-DD for plans/*-week.json (default: newest)",
     )
     parser.add_argument(
         "--intervals-only",
@@ -484,13 +466,13 @@ def main() -> int:
         return 0
 
     try:
-        plan_path = resolve_week_yaml(
-            str(args.plan) if args.plan else None, root=root
+        plan_path = resolve_week_json(
+            str(args.plan) if args.plan else None
         )
     except FileNotFoundError as e:
         raise SystemExit(str(e)) from e
 
-    week = load_week_yaml(plan_path)
+    week = load_week(plan_path)
     sessions = sessions_from_week(week)
     if not sessions:
         print(f"No runnable sessions in {plan_path} — nothing to push.")

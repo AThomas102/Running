@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local/running/week.schema.json",
+  "title": "WeekPlan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["week_start", "run_total_km", "days"],
+  "properties": {
+    "week_start": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Monday date YYYY-MM-DD (also used in the filename)."
+    },
+    "generated_on": { "type": ["string", "null"] },
+    "updated_at_gmt": { "type": ["string", "null"] },
+    "athlete": {
+      "type": "string",
+      "description": "Path to the athlete markdown profile, e.g. athletes/andrew.md."
+    },
+    "goal": { "type": ["string", "null"] },
+    "based_on_history": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "research_used": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "rationale": { "type": ["string", "null"] },
+    "summary_title": { "type": ["string", "null"] },
+    "run_total_km": {
+      "type": "number",
+      "description": "Must equal the sum of days[].run_km (enforced in Python)."
+    },
+    "context": { "type": ["string", "null"] },
+    "watch_fors": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "key_sessions": { "type": ["string", "null"] },
+    "strength_and_recovery": { "type": ["string", "null"] },
+    "path_after": { "type": ["string", "null"] },
+    "evaluation_notes": { "type": ["string", "null"] },
+    "days": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/day" }
+    }
+  },
+  "$defs": {
+    "day": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "run_km", "run_kind"],
+      "properties": {
+        "date": { "type": "string", "minLength": 1 },
+        "dow": { "type": ["string", "null"] },
+        "run_km": { "type": "number" },
+        "run_kind": {
+          "type": "string",
+          "enum": ["easy", "long", "interval", "rest"]
+        },
+        "run_name": { "type": ["string", "null"] },
+        "start_time": { "type": ["string", "null"] },
+        "description": { "type": ["string", "null"] },
+        "sc": { "type": ["boolean", "null"] },
+        "bike": {
+          "type": ["string", "null"],
+          "enum": ["none", "commute", "easy", null]
+        },
+        "bike_min": { "type": ["number", "null"] },
+        "bike_km": { "type": ["number", "null"] },
+        "bike_name": { "type": ["string", "null"] },
+        "bike_start_time": { "type": ["string", "null"] },
+        "bike_description": { "type": ["string", "null"] },
+        "note": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

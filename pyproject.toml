@@ -1,10 +1,10 @@
 [project]
 name = "running"
 version = "0.1.0"
-description = "Sports-science running plans, Intervals.icu helpers, and week YAML tooling"
+description = "Sports-science running plans, Intervals.icu helpers, and week JSON tooling"
 requires-python = ">=3.11"
 dependencies = [
-    "PyYAML>=6.0",
+    "jsonschema>=4.0",
 ]
 
 [project.optional-dependencies]

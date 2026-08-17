@@ -8,26 +8,25 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from running.week_plan import load_week_yaml, plans_dir, render_week_markdown
+from running.week_plan import load_week, plans_dir, render_week_markdown
 from running.workout_syntax import EASY_PACE_FLOOR, easy_run_description
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "weeks"
 
 
-def test_all_week_yaml_totals_match_day_sums() -> None:
-    """Require every ``plans/*-week.yaml`` to pass arithmetic validation.
+def test_live_week_json_totals_match_day_sums() -> None:
+    """Validate every live ``*-week.json`` when personal data is present.
 
     Purpose:
         Catch plan arithmetic drift before upload/render.
 
     Remove when:
-        Week YAML totals are no longer required.
+        Week JSON totals are no longer required.
     """
     plans = plans_dir()
-    weeks = sorted(plans.glob("*-week.yaml"))
-    assert weeks, f"expected week YAML under {plans}"
+    weeks = sorted(plans.glob("*-week.json"))
     for path in weeks:
-        load_week_yaml(path)
+        load_week(path)
 
 
 def test_easy_pace_floor_constant_is_4_40() -> None:
@@ -53,7 +52,7 @@ def test_fixture_stride_days_use_press_lap_and_reps() -> None:
     Remove when:
         Stride watch structure is redesigned.
     """
-    week = load_week_yaml(FIXTURES / "valid-week.yaml")
+    week = load_week(FIXTURES / "valid-week.json")
     stride_days = []
     for day in week.get("days") or []:
         if not isinstance(day, dict):
@@ -80,7 +79,7 @@ def test_fixture_easy_long_use_pace_not_hr_percent() -> None:
     Remove when:
         Easy guidance returns to HR by policy.
     """
-    week = load_week_yaml(FIXTURES / "valid-week.yaml")
+    week = load_week(FIXTURES / "valid-week.json")
     checked = 0
     for day in week.get("days") or []:
         if not isinstance(day, dict):
@@ -99,12 +98,12 @@ def test_copy_paste_summary_appends_strides() -> None:
     """Include ``+ strides`` in the copy-paste summary when a day has strides.
 
     Purpose:
-        Chat paste must match YAML stride sessions.
+        Chat paste must match JSON stride sessions.
 
     Remove when:
         Copy-paste summary no longer lists day sessions.
     """
-    week = load_week_yaml(FIXTURES / "valid-week.yaml")
-    text = render_week_markdown(week, yaml_name="valid-week.yaml")
+    week = load_week(FIXTURES / "valid-week.json")
+    text = render_week_markdown(week, source_name="valid-week.json")
     assert "12k easy + strides" in text
     assert "12 easy + strides" in text

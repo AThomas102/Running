@@ -13,6 +13,7 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from running.paths import repo_root
 from running.workout_syntax import normalize_workout_description
 
 USER_AGENT = (
@@ -20,16 +21,6 @@ USER_AGENT = (
     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
 API_BASE = "https://intervals.icu/api/v1"
-
-
-def repo_root() -> Path:
-    """
-    Return the repository root directory.
-
-    Returns:
-        Parent of the ``running/`` package.
-    """
-    return Path(__file__).resolve().parent.parent
 
 
 def load_api_key(env_path: Path | None = None) -> str:

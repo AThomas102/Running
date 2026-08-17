@@ -1,6 +1,6 @@
 # Research library index
 
-Evidence cards for planning. Prefer citing these paths in plan `research_used` before making new web claims.
+Evidence cards for planning. Prefer citing these paths in plan `research_used` before making new web claims. Research stays in this git repo (generic; not PersonalData). New cards: copy [`templates/research.md`](../templates/research.md).
 
 **Summary convention:** each file has YAML frontmatter (`title`, `authors_year`, `url`, `accessed_gmt`, `type`, `why_it_matters`), then key findings, limitations, and planning implications.
 
