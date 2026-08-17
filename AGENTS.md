@@ -104,7 +104,7 @@ def multiply(a: int, b: int) -> int:
 
 ## Dating
 
-- Date-stamp plans, history entries, and saved research (filenames and/or frontmatter) so past information can inform future training.
+- Date-stamp plans (`week_start`, `generated_on`, `updated_at_gmt` in JSON), history entries, and research (filenames and/or YAML frontmatter) so past information can inform future training.
 - Prefer GMT/UTC from `uv run gmt-now` when tagging.
 
 ## Images

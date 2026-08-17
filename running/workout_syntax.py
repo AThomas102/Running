@@ -30,8 +30,6 @@ SYNTAX_GUIDE_URL = (
 
 EASY_PACE_FLOOR = "4:40"  # min/km — fastest allowed easy pace
 EASY_PACE_CEILING = "8:00"  # min/km — slow end of easy Pace band
-# Verified Intervals parse: ``8:00-4:40/km Pace`` → secs/km band.
-EASY_PACE_TARGET = f"{EASY_PACE_CEILING}-{EASY_PACE_FLOOR}/km Pace"
 
 # Step line shape from the guide: "- <load> <target> …"
 _STEP_LOAD_RE = re.compile(

@@ -6,35 +6,20 @@ import argparse
 from datetime import date
 from pathlib import Path
 
+from running.paths import repo_root
 from running.intervals_lib import (
     clear_managed_events,
-    covers_date_range,
     event_payload_from_session,
     force_garmin_workout_sync,
     garmin_upload_status,
     list_events,
     load_api_key,
     nudge_events_for_garmin,
-    repo_root,
     session_uid,
     sessions_date_range,
     upsert_event,
 )
 from running.week_plan import covers_from_week, load_week, resolve_week_json, sessions_from_week
-
-# HR zones + intensity flags → structured steps Garmin can execute.
-# Bare "Z2" alone is treated as power and will not guide a run watch correctly.
-DEMO_DESCRIPTION = """\
-Warmup
-- 2km intensity=warmup Z2 HR
-
-5x
-- 1km intensity=active Z4 HR
-- 90s intensity=rest Z1 HR
-
-Cooldown
-- 1km intensity=cooldown Z2 HR
-"""
 
 
 def refuse_past_plan(
@@ -47,7 +32,7 @@ def refuse_past_plan(
     Hard-error if the plan's covered range / all sessions are before today.
 
     Args:
-        meta: Week mapping (or legacy frontmatter).
+        meta: Week mapping.
         sessions: Upload session dicts.
         today: Local "today" for past-day protection.
 
@@ -63,8 +48,6 @@ def refuse_past_plan(
             covers = covers_from_week(meta)
         except ValueError:
             covers = None
-    if covers is None:
-        covers = covers_date_range(meta)
     if covers:
         end = date.fromisoformat(covers[1])
         if end < today:
@@ -369,49 +352,6 @@ def push_sessions(
     return pushed
 
 
-def run_demo(api_key: str, *, dry_run: bool, garmin_sync: bool) -> int:
-    """
-    Push a sample 5x1km interval workout (demo helper).
-
-    Args:
-        api_key: Intervals API key.
-        dry_run: If True, print only.
-        garmin_sync: If True, force Garmin re-upload after push.
-
-    Returns:
-        Number of sessions pushed.
-
-    Raises:
-        SystemExit: If the hardcoded demo day is before today.
-    """
-    today = date.today()
-    demo_day = "2026-08-03"
-    if date.fromisoformat(demo_day) < today:
-        raise SystemExit(
-            f"Refusing demo: {demo_day} is before today ({today.isoformat()})."
-        )
-    session = {
-        "date": demo_day,
-        "name": "5x1km",
-        "type": "Run",
-        "kind": "interval",
-        "start_time": "08:00",
-        "description": DEMO_DESCRIPTION.strip(),
-    }
-    print(f"Demo: 5x1km on {demo_day} (clear day, then push Garmin-ready steps)")
-    return push_sessions(
-        api_key,
-        [session],
-        plan_stem="demo",
-        intervals_only=False,
-        dry_run=dry_run,
-        clear_oldest=demo_day,
-        clear_newest=demo_day,
-        garmin_sync=garmin_sync,
-        today=today,
-    )
-
-
 def main() -> int:
     """
     CLI entry: push week-plan sessions to Intervals and force Garmin sync.
@@ -439,11 +379,6 @@ def main() -> int:
         help="Parse and print payloads; do not call the API",
     )
     parser.add_argument(
-        "--demo-5x1km",
-        action="store_true",
-        help="Push a sample 5x1km workout for 2026-08-03 (ignores --plan)",
-    )
-    parser.add_argument(
         "--no-clear",
         action="store_true",
         help="Do not delete existing running-repo: events in the week range first",
@@ -459,11 +394,6 @@ def main() -> int:
     api_key = "" if args.dry_run else load_api_key(root / ".env")
     garmin_sync = not args.no_garmin_sync
     today = date.today()
-
-    if args.demo_5x1km:
-        n = run_demo(api_key, dry_run=args.dry_run, garmin_sync=garmin_sync)
-        print(f"Done ({n} session(s)).")
-        return 0
 
     try:
         plan_path = resolve_week_json(

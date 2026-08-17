@@ -511,29 +511,6 @@ def nudge_events_for_garmin(
     return n
 
 
-def covers_date_range(meta: dict[str, Any]) -> tuple[str, str] | None:
-    """
-    Parse frontmatter ``covers: YYYY-MM-DD to YYYY-MM-DD``.
-
-    Args:
-        meta: Mapping that may contain ``covers``.
-
-    Returns:
-        ``(oldest, newest)`` or None if missing/unparsed.
-    """
-    covers = meta.get("covers")
-    if not covers:
-        return None
-    m = re.search(
-        r"(\d{4}-\d{2}-\d{2})\s+to\s+(\d{4}-\d{2}-\d{2})",
-        str(covers),
-        re.IGNORECASE,
-    )
-    if not m:
-        return None
-    return m.group(1), m.group(2)
-
-
 def sessions_date_range(sessions: list[dict[str, Any]]) -> tuple[str, str] | None:
     """
     Return min/max session dates.

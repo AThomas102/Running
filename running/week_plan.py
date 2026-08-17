@@ -9,12 +9,7 @@ from typing import Any
 
 from running.paths import data_root
 from running.schema_io import load as load_json_schema
-from running.workout_syntax import (
-    as_float,
-    easy_bike_description,
-    easy_run_description,
-    format_duration_minutes,
-)
+from running.workout_syntax import as_float, easy_bike_description, easy_run_description
 
 RUN_KINDS_UPLOAD = frozenset({"easy", "long", "interval"})
 BIKE_KINDS = frozenset({"commute", "easy"})
@@ -47,7 +42,6 @@ def find_current_week_json(plans: Path | None = None) -> Path:
     """
     d = plans or plans_dir()
     candidates = sorted(d.glob("*-week.json"), key=lambda p: p.name)
-    candidates = [p for p in candidates if p.name != "week.json"]
     if not candidates:
         raise FileNotFoundError(f"No *-week.json under {d}")
     return candidates[-1]
@@ -194,19 +188,6 @@ def covers_from_week(week: dict[str, Any]) -> tuple[str, str]:
     return start.isoformat(), end.isoformat()
 
 
-def format_bike_duration(minutes: int) -> str:
-    """
-    Format bike duration for Intervals step syntax.
-
-    Args:
-        minutes: Duration in minutes.
-
-    Returns:
-        Token such as ``90m`` or ``1h30m``.
-    """
-    return format_duration_minutes(minutes)
-
-
 def bike_length(day: dict[str, Any]) -> tuple[str, str] | None:
     """
     Return planned bike length as ``(unit, display)`` if set.
@@ -264,19 +245,6 @@ def bike_session_from_day(day: dict[str, Any]) -> dict[str, Any] | None:
     }
 
 
-def default_easy_run_description(km: float) -> str:
-    """
-    Build the default easy/long run Intervals description.
-
-    Args:
-        km: Run distance in kilometres.
-
-    Returns:
-        Guide-compatible step with absolute ``Pace`` band (4:40–8:00/km).
-    """
-    return easy_run_description(km)
-
-
 def sessions_from_week(week: dict[str, Any]) -> list[dict[str, Any]]:
     """
     Map plan days to Intervals upload sessions (runs + simple bike length).
@@ -298,7 +266,7 @@ def sessions_from_week(week: dict[str, Any]) -> list[dict[str, Any]]:
             desc = day.get("description")
             if desc is None or str(desc).strip() == "":
                 if kind in {"easy", "long"}:
-                    desc = default_easy_run_description(km_f)
+                    desc = easy_run_description(km_f)
                 else:
                     desc = f"- {km_f:g}km Z2 HR\n"
             sessions.append(

@@ -21,12 +21,11 @@ Copy [`.env.example`](.env.example) to `.env`. Set `RUNNING_DATA_DIR` and, for I
 |--------|-------------|
 | [`library/`](library/) | Reference material: workout recipes, double-threshold notes, strength & conditioning, injury notes, club logistics. |
 | [`research/`](research/) | Sports science evidence cards and notes ([INDEX](research/INDEX.md)); new cards from [`templates/research.md`](templates/research.md). Stays in git (generic, not PersonalData). |
-| [`templates/`](templates/) | Scaffolds: [`week.json`](templates/week.json) (code dataset), markdown for [`athlete`](templates/athlete.md) / [`history`](templates/history.md) / [`roadmap`](templates/roadmap.md) / [`research`](templates/research.md), plus render notes in [`TEMPLATE.md`](templates/TEMPLATE.md). |
+| [`templates/`](templates/) | Scaffolds: [`week.json`](templates/week.json) (code dataset), markdown for [`athlete`](templates/athlete.md) / [`history`](templates/history.md) / [`roadmap`](templates/roadmap.md) / [`research`](templates/research.md). |
 | [`schemas/`](schemas/) | JSON Schema for week plans ([`week.schema.json`](schemas/week.schema.json), draft 2020-12). |
 | [`examples/athletes/sample/`](examples/athletes/sample/) | Fictional athlete + history + roadmap (not live data). Weeks use [`templates/week.json`](templates/week.json) / [`schemas/week.schema.json`](schemas/week.schema.json). |
 | [`running/`](running/) | Installable Python package (Intervals helpers, week JSON render/push, workout syntax). Run via `uv run …`. |
 | [`tests/`](tests/) | Pytest suite: Intervals syntax, week totals/schema, path roots, upload past-day safety, Pace/stride contracts. `uv sync --extra dev && uv run pytest`. |
-| [`scripts/`](scripts/) | Pointers only — use `uv run` entry points (see [`scripts/README.md`](scripts/README.md)). |
 | [`.cache/`](.cache/) | Local-only (gitignored). Monthly Intervals digests under `.cache/intervals/YYYY-MM/` (`month.md`, JSON). |
 
 Live personal data (`$RUNNING_DATA_DIR`):
@@ -76,7 +75,6 @@ Reads runnable `days` from the current `$RUNNING_DATA_DIR/plans/*-week.json` (ru
 uv run update-weekly-plan
 uv run update-weekly-plan --intervals-only
 uv run update-weekly-plan --dry-run
-uv run update-weekly-plan --demo-5x1km
 ```
 
 Clears existing `running-repo:` calendar events from **today onward** in the week range before uploading (use `--no-clear` to skip). **Never updates or clears days before today**; a plan whose coverage/sessions are entirely in the past hard-errors. After upload, forces an Intervals→Garmin planned-workout re-upload (toggle; use `--no-garmin-sync` to skip). Day `description` should use Intervals workout syntax with **HR or Pace** targets (e.g. `Z2 HR`, `intensity=warmup`) so Garmin gets executable steps.

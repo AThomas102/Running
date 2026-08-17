@@ -6,12 +6,12 @@ import argparse
 import json
 from pathlib import Path
 
+from running.paths import repo_root
 from running.intervals_lib import (
     fetch_month_activities,
     gmt_now_iso,
     load_api_key,
     render_month_md,
-    repo_root,
     summarize,
 )
 
