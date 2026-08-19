@@ -19,7 +19,7 @@ from running.intervals_lib import (
     sessions_date_range,
     upsert_event,
 )
-from running.week_plan import covers_from_week, load_week, resolve_week_json, sessions_from_week
+from running.week import covers_from_week, load_week_with_anchors, resolve_week_json, sessions_from_week
 
 
 def refuse_past_plan(
@@ -402,8 +402,8 @@ def main() -> int:
     except FileNotFoundError as e:
         raise SystemExit(str(e)) from e
 
-    week = load_week(plan_path)
-    sessions = sessions_from_week(week)
+    week, anchors = load_week_with_anchors(plan_path)
+    sessions = sessions_from_week(week, anchors)
     if not sessions:
         print(f"No runnable sessions in {plan_path} — nothing to push.")
         return 0

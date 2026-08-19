@@ -2,6 +2,8 @@
 
 Copy to `$RUNNING_DATA_DIR/athletes/<slug>.md`. Update when durable facts change (goals, constraints, PBs, zone anchors). Week-to-week body feel belongs in `history/`, not here.
 
+Machine-readable Pace bands live in the sibling **`athletes/<slug>.json`** (copy [`templates/athlete.json`](athlete.json)). Render and Intervals upload read the JSON, not this markdown.
+
 Replace the heading with the athlete’s name.
 
 # Name
@@ -33,7 +35,7 @@ Primary / secondary athlete. Prefers km or miles.
 ## Training preferences and anchors
 
 - Easy-run policy (conversation / feel)
-- **Easy Pace band** for Intervals/Garmin (ceiling / floor), e.g. `8:00-X:XX/km Pace`
+- **Easy Pace band** for Intervals/Garmin lives in `athletes/<slug>.json` (`easy_pace_ceiling` / `easy_pace_floor`)
 - Threshold / quality anchors if set
 - Deload cadence; S&C days
 

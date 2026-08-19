@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from running.gmt_now import main as gmt_now_main
-from running.week_plan import load_week, write_week_markdown
+from running.week import load_week, write_week_markdown
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "weeks"
 
@@ -48,8 +48,10 @@ def test_render_week_plan_writes_md_for_fixture(tmp_path: Path) -> None:
     src = FIXTURES / "valid-week.json"
     json_path = tmp_path / "2026-09-07-week.json"
     json_path.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
-    week = load_week(json_path)
-    md_path = write_week_markdown(json_path, tmp_path / "2026-09-07-week.md")
+    week = load_week(json_path, root=FIXTURES.parent)
+    md_path = write_week_markdown(
+        json_path, tmp_path / "2026-09-07-week.md", root=FIXTURES.parent
+    )
     text = md_path.read_text(encoding="utf-8")
     assert md_path.is_file()
     assert f"**~{week['run_total_km']}**" in text

@@ -21,18 +21,18 @@ Copy [`.env.example`](.env.example) to `.env`. Set `RUNNING_DATA_DIR` and, for I
 |--------|-------------|
 | [`library/`](library/) | Reference material: workout recipes, double-threshold notes, strength & conditioning, injury notes, club logistics. |
 | [`research/`](research/) | Sports science evidence cards and notes ([INDEX](research/INDEX.md)); new cards from [`templates/research.md`](templates/research.md). Stays in git (generic, not PersonalData). |
-| [`templates/`](templates/) | Scaffolds: [`week.json`](templates/week.json) (code dataset), markdown for [`athlete`](templates/athlete.md) / [`history`](templates/history.md) / [`roadmap`](templates/roadmap.md) / [`research`](templates/research.md). |
-| [`schemas/`](schemas/) | JSON Schema for week plans ([`week.schema.json`](schemas/week.schema.json), draft 2020-12). |
-| [`examples/athletes/sample/`](examples/athletes/sample/) | Fictional athlete + history + roadmap (not live data). Weeks use [`templates/week.json`](templates/week.json) / [`schemas/week.schema.json`](schemas/week.schema.json). |
-| [`running/`](running/) | Installable Python package (Intervals helpers, week JSON render/push, workout syntax). Run via `uv run …`. |
-| [`tests/`](tests/) | Pytest suite: Intervals syntax, week totals/schema, path roots, upload past-day safety, Pace/stride contracts. `uv sync --extra dev && uv run pytest`. |
+| [`templates/`](templates/) | Scaffolds: [`week.json`](templates/week.json) (code dataset), [`athlete.json`](templates/athlete.json) (Pace bands), markdown for [`athlete`](templates/athlete.md) / [`history`](templates/history.md) / [`roadmap`](templates/roadmap.md) / [`research`](templates/research.md). |
+| [`schemas/`](schemas/) | JSON Schema for week plans ([`week.schema.json`](schemas/week.schema.json)), run sessions ([`session.schema.json`](schemas/session.schema.json)), and athlete anchors ([`athlete.schema.json`](schemas/athlete.schema.json)). |
+| [`examples/athletes/sample/`](examples/athletes/sample/) | Fictional athlete + JSON anchors + history + roadmap (not live data). Weeks use [`templates/week.json`](templates/week.json) / [`schemas/week.schema.json`](schemas/week.schema.json). |
+| [`running/`](running/) | Installable Python package (Intervals helpers, week JSON render/push, session model, workout syntax). Run via `uv run …`. |
+| [`tests/`](tests/) | Pytest suite: session model, Intervals syntax, week totals/schema, path roots, upload past-day safety. `uv sync --extra dev && uv run pytest`. |
 | [`.cache/`](.cache/) | Local-only (gitignored). Monthly Intervals digests under `.cache/intervals/YYYY-MM/` (`month.md`, JSON). |
 
 Live personal data (`$RUNNING_DATA_DIR`):
 
 | Folder | Description |
 |--------|-------------|
-| `athletes/` | Athlete profiles — durable goals, constraints, PBs, and training anchors. |
+| `athletes/` | Athlete profiles — durable goals, constraints, PBs (`<slug>.md`) and machine Pace bands (`<slug>.json`). |
 | `history/` | Dated verbatim copies of running-related information the athlete provides. |
 | `plans/` | Week plans flat: **`YYYY-MM-DD-week.json`** (source of truth) + generated `.md`; also `roadmap.md`. Current week = newest `*-week.json` by date. |
 | `plans/archive/` | Leftover vault / reference notes only — not part of the weekly workflow. |
@@ -44,8 +44,8 @@ Live personal data (`$RUNNING_DATA_DIR`):
 1. Athlete provides how the body feels and related training context → saved under `$RUNNING_DATA_DIR/history/` with a date.
 2. Agent reads the athlete’s profile in `$RUNNING_DATA_DIR/athletes/`, recent `history/`, the current plan in `$RUNNING_DATA_DIR/plans/`, relevant in-repo `library/` notes, and `research/`.
 3. If more sports science is needed, agent researches and saves sources into in-repo `research/`.
-4. New or updated week is written as `$RUNNING_DATA_DIR/plans/YYYY-MM-DD-week.json` from [`templates/week.json`](templates/week.json); render with `uv run render-week-plan`. Leave prior weeks in place under `plans/`.
-5. Durable profile facts (new PBs, lasting constraints, goal changes) are updated in `$RUNNING_DATA_DIR/athletes/`.
+4. New or updated week is written as `$RUNNING_DATA_DIR/plans/YYYY-MM-DD-week.json` from [`templates/week.json`](templates/week.json); each running day uses a structured `run` session. Render with `uv run render-week-plan`. Leave prior weeks in place under `plans/`.
+5. Durable profile facts (new PBs, lasting constraints, goal or Pace-band change) are updated in `$RUNNING_DATA_DIR/athletes/` (markdown and/or JSON).
 
 ### Weekly plan (JSON → markdown → Intervals)
 

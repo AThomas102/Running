@@ -11,6 +11,8 @@ from running.paths import repo_root
 
 try:
     import jsonschema
+    from jsonschema.validators import validator_for
+    from referencing import Registry, Resource
 except ImportError as exc:  # pragma: no cover
     raise SystemExit("jsonschema is required. Run: uv sync") from exc
 
@@ -54,6 +56,31 @@ def load_schema(schema_name: str, *, root: Path | None = None) -> dict[str, Any]
     return data
 
 
+def schema_registry(*, root: Path | None = None) -> Registry:
+    """Build a referencing registry for every ``*.schema.json`` under schemas/.
+
+    Registers each document by its ``$id`` (when set) and by filename so
+    cross-file ``$ref`` values such as ``session.schema.json`` resolve.
+
+    Args:
+        root: Optional repo root for locating ``schemas/``.
+
+    Returns:
+        A ``referencing.Registry`` populated with local schemas.
+    """
+    resources: list[tuple[str, Resource]] = []
+    for path in sorted(schemas_dir(root=root).glob("*.schema.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError(f"{path.name}: must be a JSON object")
+        resource = Resource.from_contents(data)
+        resources.append((path.name, resource))
+        schema_id = data.get("$id")
+        if isinstance(schema_id, str) and schema_id.strip():
+            resources.append((schema_id, resource))
+    return Registry().with_resources(resources)
+
+
 def _jsonish(obj: Any) -> Any:
     """Convert dates, datetimes, and Paths into JSON-serialisable values."""
     if isinstance(obj, dict):
@@ -89,8 +116,10 @@ def validate(
     cleaned = strip_meta(_jsonish(data))
     schema = load_schema(schema_name, root=root)
     where = label or schema_name
+    validator_cls = validator_for(schema)
+    validator = validator_cls(schema, registry=schema_registry(root=root))
     try:
-        jsonschema.validate(instance=cleaned, schema=schema)
+        validator.validate(cleaned)
     except jsonschema.ValidationError as exc:
         path = ".".join(str(p) for p in exc.absolute_path) or "(root)"
         raise ValueError(f"{where} schema: {path}: {exc.message}") from exc

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 
-from running.week_plan import resolve_week_json, write_week_markdown
+from running.week import resolve_week_json, write_week_markdown
 
 
 def main() -> int:

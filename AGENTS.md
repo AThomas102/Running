@@ -38,18 +38,18 @@
 
 ## Athletes
 
-- Durable, general information about each athlete lives in `$RUNNING_DATA_DIR/athletes/<name>.md` — the single reference point for goals, constraints, performances, and training anchors. Author from [`templates/athlete.md`](templates/athlete.md).
-- Update the profile when lasting facts change (new PB, new injury constraint, goal change). Do not dump week-to-week body-feel notes here; those go in `$RUNNING_DATA_DIR/history/`.
-- When planning for someone new, create their profile file before writing the plan.
+- Durable, general information about each athlete lives in `$RUNNING_DATA_DIR/athletes/<name>.md` — narrative goals, constraints, performances. **Pace bands and other machine anchors** live in `$RUNNING_DATA_DIR/athletes/<name>.json` (from [`templates/athlete.json`](templates/athlete.json); contract [`schemas/athlete.schema.json`](schemas/athlete.schema.json)). Week `athlete` may point at either `.md` or `.json`; render/upload always load the sibling JSON.
+- Update the profile when lasting facts change (new PB, new injury constraint, goal change, Pace-band change). Do not dump week-to-week body-feel notes here; those go in `$RUNNING_DATA_DIR/history/`.
+- When planning for someone new, create both the markdown profile and the JSON sidecar before writing the plan.
 
 ## Plans
 
-- **Source of truth:** `$RUNNING_DATA_DIR/plans/YYYY-MM-DD-week.json` (Monday date). Author from [`templates/week.json`](templates/week.json); contract in [`schemas/week.schema.json`](schemas/week.schema.json).
-- Render readable markdown: `uv run render-week-plan` → `$RUNNING_DATA_DIR/plans/YYYY-MM-DD-week.md` (generated; do not hand-edit as source).
+- **Source of truth:** `$RUNNING_DATA_DIR/plans/YYYY-MM-DD-week.json` (Monday date). Author from [`templates/week.json`](templates/week.json); contract in [`schemas/week.schema.json`](schemas/week.schema.json). Each running day has a structured `run` session ([`schemas/session.schema.json`](schemas/session.schema.json)) — **do not** store Intervals description strings in the JSON.
+- Render readable markdown: `uv run render-week-plan` → `$RUNNING_DATA_DIR/plans/YYYY-MM-DD-week.md` (generated; do not hand-edit as source). Workout steps in the markdown are generated from `day.run` plus athlete JSON Pace bands.
 - Keep all week plans flat under `$RUNNING_DATA_DIR/plans/` — do not move superseded weeks. Current week = newest `*-week.json` by Monday date in the filename.
 - `$RUNNING_DATA_DIR/plans/archive/` is for leftover vault / reference notes only (old plans, zones, examples) — not part of the weekly workflow.
-- **Arithmetic check (mandatory):** before finishing any week plan, sum every `days[].run_km` and set `run_total_km` to that exact total. Day `run_name` / `description` distances must match `run_km`. `uv run render-week-plan` and `uv run update-weekly-plan` refuse mismatched totals — do not bypass by editing the markdown alone. Schema validation does **not** replace this Python check.
-- Intervals workout steps: build via `running/workout_syntax.py` following [Intervals workout builder syntax](https://forum.intervals.icu/t/workout-builder-syntax-quick-guide/123701). Prefer documented targets (`% HR`, `Zx HR`, absolute Pace). Absolute bpm is **not** in that guide and must not be used as a structured target.
+- **Arithmetic check (mandatory):** before finishing any week plan, sum every `days[].run_km` and set `run_total_km` to that exact total. Day `run_name` / session distances must match `run_km`. `uv run render-week-plan` and `uv run update-weekly-plan` refuse mismatched totals — do not bypass by editing the markdown alone. Schema validation does **not** replace this Python check.
+- Intervals workout steps: generate via `running/session.py` → [`running/workout_syntax.py`](running/workout_syntax.py) following [Intervals workout builder syntax](https://forum.intervals.icu/t/workout-builder-syntax-quick-guide/123701). Prefer documented targets (`% HR`, `Zx HR`, absolute Pace). Use `{ "athlete": "easy_pace" }` for easy/long so the band comes from athlete JSON. Absolute bpm is **not** in that guide and must not be used as a structured target.
 - Date plans via filename (`week_start`) and JSON fields (`generated_on`, `updated_at_gmt`). Use `uv run gmt-now` for GMT tags.
 - Push to Intervals/Garmin: `uv run update-weekly-plan` (reads JSON `days` — runs and simple `bike_min`/`bike_km` Rides). Use `--intervals-only` for quality run sessions only. Never updates calendar days before today.
 - **Do not push** with `update-weekly-plan` until the athlete has **explicitly accepted** the week plan in chat. Writing/rendering JSON+markdown is fine; calendar/Garmin upload waits on acceptance. If pushed by mistake, clear the week’s managed `running-repo:` events and say so.
@@ -74,7 +74,7 @@ def multiply(a: int, b: int) -> int:
     return a * b
 ```
 
-- Prefer modular helpers (e.g. workout string builders in `running/workout_syntax.py`) over inlining Intervals syntax in plan JSON loaders.
+- Prefer modular helpers (session dataclasses in `running/session.py`, Intervals primitives in `running/workout_syntax.py`) over inlining Intervals syntax in plan JSON.
 - After changing workout string generation, run `uv run pytest`.
 
 ## Testing

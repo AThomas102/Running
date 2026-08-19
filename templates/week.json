@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy to $RUNNING_DATA_DIR/plans/YYYY-MM-DD-week.json (Monday = week_start). Then: uv run render-week-plan. Upload: uv run update-weekly-plan. run_kind: easy | long | interval | rest. bike: none | commute | easy. bike_min / bike_km: optional Ride length (prefer minutes). run_total_km MUST equal the sum of days[].run_km. Easy/long Pace band comes from the athlete profile — do not hard-code a floor here.",
+  "_comment": "Copy to $RUNNING_DATA_DIR/plans/YYYY-MM-DD-week.json (Monday = week_start). Then: uv run render-week-plan. Upload: uv run update-weekly-plan. run_kind: easy | long | interval | rest. Structured day.run is the workout SSOT — do not store Intervals description strings. Easy Pace comes from athletes/<slug>.json. run_total_km MUST equal the sum of days[].run_km.",
   "week_start": "YYYY-MM-DD",
   "generated_on": "YYYY-MM-DD",
   "updated_at_gmt": "YYYY-MM-DDThh:mm:ssZ",
@@ -24,7 +24,11 @@
       "run_kind": "easy",
       "run_name": "Easy 12k",
       "start_time": "08:00",
-      "description": "- 12km (easy Pace band from athlete profile)\n",
+      "run": {
+        "name": "Easy 12k",
+        "kind": "easy",
+        "blocks": [{ "km": 12, "target": { "athlete": "easy_pace" } }]
+      },
       "sc": true,
       "bike": "commute",
       "bike_min": 0,
@@ -38,7 +42,11 @@
       "run_kind": "easy",
       "run_name": "Easy 14k",
       "start_time": "08:00",
-      "description": "- 14km (easy Pace band from athlete profile)\n",
+      "run": {
+        "name": "Easy 14k",
+        "kind": "easy",
+        "blocks": [{ "km": 14, "target": { "athlete": "easy_pace" } }]
+      },
       "sc": false,
       "bike": "commute",
       "bike_min": 0,
@@ -63,7 +71,11 @@
       "run_kind": "easy",
       "run_name": "Easy 8k",
       "start_time": "08:00",
-      "description": "- 8km (easy Pace band from athlete profile)\n",
+      "run": {
+        "name": "Easy 8k",
+        "kind": "easy",
+        "blocks": [{ "km": 8, "target": { "athlete": "easy_pace" } }]
+      },
       "sc": true,
       "bike": "commute",
       "bike_min": 0,
@@ -88,7 +100,11 @@
       "run_kind": "long",
       "run_name": "Long 16k easy",
       "start_time": "08:00",
-      "description": "- 16km (easy Pace band from athlete profile)\n",
+      "run": {
+        "name": "Long 16k easy",
+        "kind": "long",
+        "blocks": [{ "km": 16, "target": { "athlete": "easy_pace" } }]
+      },
       "sc": false,
       "bike": "none",
       "bike_min": 0,

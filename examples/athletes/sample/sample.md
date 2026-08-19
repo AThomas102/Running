@@ -25,7 +25,7 @@ Fictional athlete for tests and first-run seeding. Prefers km.
 ## Training preferences and anchors
 
 - Keep easy conversational
-- Easy Pace band: copy from this athlete when writing week JSON descriptions
+- Easy Pace band: see `sample.json` (`easy_pace_ceiling` / `easy_pace_floor`)
 - S&C twice weekly
 
 ## Constraints and red flags

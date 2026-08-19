@@ -15,7 +15,7 @@
     "updated_at_gmt": { "type": ["string", "null"] },
     "athlete": {
       "type": "string",
-      "description": "Path to the athlete markdown profile, e.g. athletes/andrew.md."
+      "description": "Path to the athlete profile (.md or .json). Anchors load from the sibling .json."
     },
     "goal": { "type": ["string", "null"] },
     "based_on_history": {
@@ -61,7 +61,7 @@
         },
         "run_name": { "type": ["string", "null"] },
         "start_time": { "type": ["string", "null"] },
-        "description": { "type": ["string", "null"] },
+        "run": { "$ref": "https://local/running/session.schema.json" },
         "sc": { "type": ["boolean", "null"] },
         "bike": {
           "type": ["string", "null"],
@@ -73,7 +73,12 @@
         "bike_start_time": { "type": ["string", "null"] },
         "bike_description": { "type": ["string", "null"] },
         "note": { "type": ["string", "null"] }
-      }
+      },
+      "if": {
+        "properties": { "run_km": { "exclusiveMinimum": 0 } },
+        "required": ["run_km"]
+      },
+      "then": { "required": ["run"] }
     }
   }
 }

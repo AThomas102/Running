@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from running.paths import DATA_DIR_ENV, data_root, repo_root
-from running.week_plan import plans_dir
+from running.week import plans_dir
 
 
 def test_data_root_uses_env_when_no_root(monkeypatch: object, tmp_path: Path) -> None:

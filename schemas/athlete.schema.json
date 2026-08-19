@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local/running/athlete.schema.json",
+  "title": "AthleteAnchors",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["slug", "easy_pace_ceiling", "easy_pace_floor"],
+  "properties": {
+    "slug": { "type": "string", "minLength": 1 },
+    "easy_pace_ceiling": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Slow end of the easy Pace band (mm:ss per unit)."
+    },
+    "easy_pace_floor": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Fast end of the easy Pace band (mm:ss per unit)."
+    },
+    "pace_unit": {
+      "type": "string",
+      "enum": ["km", "mi"],
+      "default": "km"
+    }
+  }
+}

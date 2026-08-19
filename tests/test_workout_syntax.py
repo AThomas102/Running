@@ -16,11 +16,11 @@ from running.workout_syntax import (
     assert_description_follows_guide,
     easy_bike_description,
     easy_run_description,
-    easy_run_with_strides_description,
     extract_step_loads_and_targets,
     format_distance_km,
     format_duration_minutes,
     format_hr_pct_target,
+    intensity_step_line,
     normalize_workout_description,
     step_line,
 )
@@ -54,41 +54,35 @@ def test_format_hr_pct_target_matches_guide_examples() -> None:
 
 
 def test_easy_run_description_is_guide_compatible() -> None:
-    """Build easy runs as ``8:00-4:40/km Pace``, not HR.
+    """Build easy runs as an explicit Pace band, not HR.
 
     Purpose:
-        Athlete easy effort is Pace-governed.
+        Easy effort is Pace-governed; numbers are caller-supplied.
 
     Remove when:
         Easy runs stop using absolute Pace bands.
     """
-    desc = easy_run_description(12)
-    assert desc == "- 12km 8:00-4:40/km Pace\n"
+    desc = easy_run_description(12, pace_ceiling="8:00", pace_floor="5:30")
+    assert desc == "- 12km 8:00-5:30/km Pace\n"
     assert_description_follows_guide(desc)
     load, target = extract_step_loads_and_targets(desc)[0]
     assert load == "12km"
-    assert target == "8:00-4:40/km Pace"
+    assert target == "8:00-5:30/km Pace"
     assert "% HR" not in desc
     assert "bpm" not in desc.lower()
 
 
-def test_easy_run_with_strides_has_bridge_rest_and_reps() -> None:
-    """Place strides after easy km with Press-lap bridge and 90s rest.
+def test_intensity_step_line_press_lap() -> None:
+    """Encode open lap-button rest as ``Press lap`` plus intensity=rest.
 
     Purpose:
-        Watch-friendly stride block structure.
+        Watch-friendly relocating rest before repeats.
 
     Remove when:
-        Easy runs stop using Press-lap stride structure.
+        Press-lap encoding is retired.
     """
-    desc = easy_run_with_strides_description(15)
-    assert "- 15km 8:00-4:40/km Pace" in desc
-    assert "- Press lap 15m intensity=rest" in desc
-    assert "- 90s intensity=rest" in desc
-    assert desc.index("15km") < desc.index("4x")
-    assert desc.index("Press lap") < desc.index("4x")
-    assert "2m intensity=rest" not in desc
-    assert_description_follows_guide(desc)
+    line = intensity_step_line("15m", "rest", press_lap=True)
+    assert line == "- Press lap 15m intensity=rest\n"
 
 
 def test_absolute_bpm_target_rejected_by_step_builder() -> None:

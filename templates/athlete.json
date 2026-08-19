@@ -1,0 +1,7 @@
+{
+  "_comment": "Copy to $RUNNING_DATA_DIR/athletes/<slug>.json. Easy Pace band: ceiling = slow end, floor = fast end. Narrative stays in athletes/<slug>.md.",
+  "slug": "<slug>",
+  "easy_pace_ceiling": "8:00",
+  "easy_pace_floor": "5:30",
+  "pace_unit": "km"
+}

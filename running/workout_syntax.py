@@ -15,7 +15,7 @@ Not documented (and not used as structured targets here):
 
 Live parse checks (2026-08-03) matched the guide: ``41-72% HR`` becomes
 ``hr: {start:41, end:72, units:"%hr"}``; absolute bpm does not.
-Easy/long defaults now use ``8:00-4:40/km Pace``.
+Easy/long Pace bands come from athlete JSON, not this module.
 """
 
 from __future__ import annotations
@@ -27,9 +27,6 @@ from typing import Any
 SYNTAX_GUIDE_URL = (
     "https://forum.intervals.icu/t/workout-builder-syntax-quick-guide/123701"
 )
-
-EASY_PACE_FLOOR = "4:40"  # min/km — fastest allowed easy pace
-EASY_PACE_CEILING = "8:00"  # min/km — slow end of easy Pace band
 
 # Step line shape from the guide: "- <load> <target> …"
 _STEP_LOAD_RE = re.compile(
@@ -122,7 +119,7 @@ def step_line(
 
     Args:
         load: Duration or distance token (e.g. ``12km``, ``1h30m``).
-        target: Intensity target (e.g. ``8:00-4:40/km Pace``, ``Z2 HR``).
+        target: Intensity target (e.g. ``8:00-5:30/km Pace``, ``Z2 HR``).
         note: Optional free-text note after the target.
         trailing_newline: If True, end with a newline (API descriptions).
 
@@ -153,73 +150,66 @@ def step_line(
     return line
 
 
+def intensity_step_line(
+    load: str,
+    intensity: str,
+    *,
+    press_lap: bool = False,
+    note: str | None = None,
+    trailing_newline: bool = True,
+) -> str:
+    """Build a step that uses an Intervals ``intensity=`` flag (no Pace/HR).
+
+    Args:
+        load: Duration or distance token (e.g. ``15m``, ``20s``).
+        intensity: Flag value such as ``rest`` or ``active``.
+        press_lap: If True, prefix with ``Press lap`` (open rest until lap).
+        note: Optional free-text note after the flag.
+        trailing_newline: If True, end with a newline.
+
+    Returns:
+        Complete step line starting with ``- ``.
+
+    Raises:
+        ValueError: If ``load`` is not a guide-style token.
+    """
+    load_s = load.strip()
+    if not _STEP_LOAD_RE.match(load_s):
+        raise ValueError(
+            f"load {load_s!r} is not a guide-style duration/distance token "
+            f"(see {SYNTAX_GUIDE_URL})"
+        )
+    flag = intensity.strip().lower()
+    cue = f"Press lap {load_s}" if press_lap else load_s
+    line = f"- {cue} intensity={flag}"
+    if note:
+        line = f"{line} ({note.strip()})"
+    if trailing_newline:
+        line += "\n"
+    return line
+
+
 def easy_run_description(
     km: float,
     *,
-    pace_ceiling: str = EASY_PACE_CEILING,
-    pace_floor: str = EASY_PACE_FLOOR,
+    pace_ceiling: str,
+    pace_floor: str,
+    pace_unit: str = "km",
 ) -> str:
-    """
-    Build the default easy/long run Intervals description.
-
-    Uses absolute ``Pace`` (documented) so Garmin gets a pace band. HR is not
-    used: this athlete can run very low HR at fast paces (e.g. ~4:10/km), so
-    pace is the easy governor.
+    """Build a continuous easy/long Intervals description from a Pace band.
 
     Args:
         km: Run distance in kilometres.
-        pace_ceiling: Slow end of easy band as mm:ss per km (e.g. 8:00).
-        pace_floor: Fast end of easy band as mm:ss per km (e.g. 4:40).
+        pace_ceiling: Slow end of the band as mm:ss (e.g. 8:00).
+        pace_floor: Fast end of the band as mm:ss (e.g. 5:30).
+        pace_unit: ``km`` or ``mi`` in the Pace target.
 
     Returns:
         Description ending with a newline, e.g.
-        ``- 12km 8:00-4:40/km Pace\\n``.
+        ``- 12km 8:00-5:30/km Pace\\n``.
     """
-    target = f"{pace_ceiling}-{pace_floor}/km Pace"
+    target = f"{pace_ceiling}-{pace_floor}/{pace_unit} Pace"
     return step_line(format_distance_km(km), target)
-
-
-def easy_run_with_strides_description(
-    km: float,
-    *,
-    stride_reps: int = 4,
-    stride_seconds: int = 20,
-    rest_seconds: int = 90,
-    bridge_rest_placeholder_minutes: int = 15,
-    pace_ceiling: str = EASY_PACE_CEILING,
-    pace_floor: str = EASY_PACE_FLOOR,
-) -> str:
-    """
-    Easy km, then an open lap-button rest, then strides with timed rest between reps.
-
-    The bridge uses Intervals ``Press lap`` so Garmin waits until you lap (e.g. while
-    relocating). The placeholder minutes are only for load estimate — the step does
-    not auto-end on that clock.
-
-    Args:
-        km: Easy distance in kilometres.
-        stride_reps: Number of stride repetitions.
-        stride_seconds: Length of each stride in seconds.
-        rest_seconds: Rest/jog between strides in seconds.
-        bridge_rest_placeholder_minutes: Nominal minutes for Intervals load
-            estimate on the open lap-rest step (does not force end time).
-        pace_ceiling: Slow end of easy Pace band (mm:ss per km).
-        pace_floor: Fast end of easy Pace band (mm:ss per km).
-
-    Returns:
-        Multi-step Intervals description ending with a newline.
-    """
-    easy = easy_run_description(
-        km, pace_ceiling=pace_ceiling, pace_floor=pace_floor
-    ).rstrip("\n")
-    # Forum syntax: "Press lap <duration> …" — ends on lap (Garmin/Suunto).
-    bridge = (
-        f"- Press lap {bridge_rest_placeholder_minutes}m intensity=rest"
-    )
-    reps_header = f"{stride_reps}x"
-    stride = f"- {stride_seconds}s intensity=active"
-    rest = f"- {rest_seconds}s intensity=rest"
-    return f"{easy}\n\n{bridge}\n\n{reps_header}\n{stride}\n{rest}\n"
 
 
 def easy_bike_description(
@@ -282,7 +272,7 @@ def extract_step_loads_and_targets(description: str) -> list[tuple[str, str]]:
             ):
                 # e.g. "- 90s intensity=rest" — not a structured Pace/HR pair
                 continue
-        # Target may be two tokens: "8:00-4:40/km Pace" or "Z2 HR" or "41-72% HR"
+        # Target may be two tokens: "8:00-5:30/km Pace" or "Z2 HR" or "41-72% HR"
         if len(parts) >= 3 and parts[2].upper() in {"HR", "PACE", "LTHR"}:
             target = f"{parts[1]} {parts[2]}"
         elif len(parts) >= 2 and parts[1].upper() in {"HR", "PACE", "LTHR"}:

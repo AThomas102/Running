@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local/running/session.schema.json",
+  "title": "RunSession",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["blocks"],
+  "properties": {
+    "name": { "type": ["string", "null"] },
+    "kind": {
+      "type": "string",
+      "enum": ["easy", "long", "interval"]
+    },
+    "blocks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/block" }
+    }
+  },
+  "$defs": {
+    "target": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["athlete"],
+          "properties": {
+            "athlete": { "const": "easy_pace" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pace"],
+          "properties": {
+            "pace": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["hr"],
+          "properties": {
+            "hr": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["intensity"],
+          "properties": {
+            "intensity": {
+              "type": "string",
+              "enum": ["rest", "active", "warmup", "cooldown"]
+            }
+          }
+        }
+      ]
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target"],
+      "properties": {
+        "km": { "type": "number", "exclusiveMinimum": 0 },
+        "mtr": { "type": "number", "exclusiveMinimum": 0 },
+        "seconds": { "type": "integer", "exclusiveMinimum": 0 },
+        "minutes": { "type": "integer", "exclusiveMinimum": 0 },
+        "press_lap": { "type": "boolean" },
+        "target": { "$ref": "#/$defs/target" },
+        "note": { "type": ["string", "null"] }
+      }
+    },
+    "repeat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reps", "steps"],
+      "properties": {
+        "reps": { "type": "integer", "minimum": 1 },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/step" }
+        }
+      }
+    },
+    "block": {
+      "oneOf": [
+        { "$ref": "#/$defs/repeat" },
+        { "$ref": "#/$defs/step" }
+      ]
+    }
+  }
+}

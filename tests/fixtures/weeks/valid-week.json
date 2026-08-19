@@ -1,7 +1,7 @@
 {
   "week_start": "2026-09-07",
   "generated_on": "2026-09-06",
-  "athlete": "athletes/andrew.md",
+  "athlete": "athletes/sample.json",
   "goal": "Fixture week for offline tests",
   "summary_title": "Fixture valid week",
   "run_total_km": 42,
@@ -13,7 +13,25 @@
       "run_kind": "easy",
       "run_name": "Easy 12k + strides",
       "start_time": "08:00",
-      "description": "- 12km 8:00-4:40/km Pace\n\n- Press lap 15m intensity=rest\n\n4x\n- 20s intensity=active\n- 90s intensity=rest\n",
+      "run": {
+        "name": "Easy 12k + strides",
+        "kind": "easy",
+        "blocks": [
+          { "km": 12, "target": { "athlete": "easy_pace" } },
+          {
+            "press_lap": true,
+            "minutes": 15,
+            "target": { "intensity": "rest" }
+          },
+          {
+            "reps": 4,
+            "steps": [
+              { "seconds": 20, "target": { "intensity": "active" } },
+              { "seconds": 90, "target": { "intensity": "rest" } }
+            ]
+          }
+        ]
+      },
       "sc": true,
       "bike": "commute",
       "note": ""
@@ -34,7 +52,11 @@
       "run_kind": "easy",
       "run_name": "Easy 14k",
       "start_time": "08:00",
-      "description": "- 14km 8:00-4:40/km Pace\n",
+      "run": {
+        "name": "Easy 14k",
+        "kind": "easy",
+        "blocks": [{ "km": 14, "target": { "athlete": "easy_pace" } }]
+      },
       "sc": false,
       "bike": "commute",
       "note": ""
@@ -64,7 +86,11 @@
       "run_kind": "long",
       "run_name": "Long 16k easy",
       "start_time": "08:00",
-      "description": "- 16km 8:00-4:40/km Pace\n",
+      "run": {
+        "name": "Long 16k easy",
+        "kind": "long",
+        "blocks": [{ "km": 16, "target": { "athlete": "easy_pace" } }]
+      },
       "sc": false,
       "bike": "none",
       "note": ""

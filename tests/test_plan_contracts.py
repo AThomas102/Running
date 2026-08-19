@@ -1,21 +1,33 @@
-"""Regression contracts for easy-pace policy and week-plan fixtures.
+"""Regression contracts for session shape and week-plan fixtures.
 
-Fail loudly if plans or defaults drift from intended Pace / stride structure.
-Do not weaken these to match broken plans — fix the plan or code instead.
+Fail loudly if plans drift from structured sessions and athlete-owned Pace.
+Do not lock one athlete's numbers into the package.
 """
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
-from running.week_plan import load_week, plans_dir, render_week_markdown
-from running.workout_syntax import EASY_PACE_FLOOR, easy_run_description
+from running.athlete import load_athlete_anchors
+from running.session import RunSession
+from running.week import load_week, plans_dir, render_week_markdown
+from running.workout_syntax import assert_description_follows_guide
 
-FIXTURES = Path(__file__).resolve().parent / "fixtures" / "weeks"
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
+WEEKS = FIXTURES / "weeks"
+
+
+def _is_legacy_description_week(raw: dict) -> bool:
+    """Return True if a week still uses hand-written day descriptions."""
+    for day in raw.get("days") or []:
+        if isinstance(day, dict) and day.get("description") and not day.get("run"):
+            return True
+    return False
 
 
 def test_live_week_json_totals_match_day_sums() -> None:
-    """Validate every live ``*-week.json`` when personal data is present.
+    """Validate live ``*-week.json`` that already use structured ``run``.
 
     Purpose:
         Catch plan arithmetic drift before upload/render.
@@ -26,72 +38,68 @@ def test_live_week_json_totals_match_day_sums() -> None:
     plans = plans_dir()
     weeks = sorted(plans.glob("*-week.json"))
     for path in weeks:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(raw, dict):
+            continue
+        if _is_legacy_description_week(raw):
+            continue
         load_week(path)
 
 
-def test_easy_pace_floor_constant_is_4_40() -> None:
-    """Keep easy Pace floor at 4:40/km (band 8:00–4:40).
+def test_fixture_easy_resolves_athlete_pace_not_hr() -> None:
+    """Require easy/long generated targets to use athlete Pace, not ``% HR``.
 
     Purpose:
-        Athlete easy policy is Pace-governed with a 4:40 floor.
-
-    Remove when:
-        The easy Pace band policy changes.
-    """
-    assert EASY_PACE_FLOOR == "4:40"
-    desc = easy_run_description(1)
-    assert desc == "- 1km 8:00-4:40/km Pace\n"
-
-
-def test_fixture_stride_days_use_press_lap_and_reps() -> None:
-    """Require stride days to use Press-lap rest then 4×20s / 90s.
-
-    Purpose:
-        Watch-friendly stride structure must stay consistent.
-
-    Remove when:
-        Stride watch structure is redesigned.
-    """
-    week = load_week(FIXTURES / "valid-week.json")
-    stride_days = []
-    for day in week.get("days") or []:
-        if not isinstance(day, dict):
-            continue
-        blob = f"{day.get('run_name', '')}\n{day.get('description', '')}".lower()
-        if "stride" in blob or "4x" in str(day.get("description") or "").lower():
-            if "20s" in str(day.get("description") or ""):
-                stride_days.append(day)
-    assert stride_days, "fixture week should include at least one stride session"
-    for day in stride_days:
-        desc = str(day.get("description") or "")
-        assert "Press lap" in desc
-        assert "4x" in desc
-        assert "20s" in desc
-        assert "90s" in desc
-
-
-def test_fixture_easy_long_use_pace_not_hr_percent() -> None:
-    """Require easy/long targets to use Pace, not ``% HR``.
-
-    Purpose:
-        Easy guidance is Pace-based for this athlete.
+        Easy guidance is Pace-based via athlete JSON.
 
     Remove when:
         Easy guidance returns to HR by policy.
     """
-    week = load_week(FIXTURES / "valid-week.json")
+    week = load_week(WEEKS / "valid-week.json", root=FIXTURES)
+    anchors = load_athlete_anchors("athletes/sample.json", root=FIXTURES)
     checked = 0
     for day in week.get("days") or []:
         if not isinstance(day, dict):
             continue
         kind = str(day.get("run_kind") or "").lower()
         km = float(day.get("run_km") or 0)
-        if kind in {"easy", "long"} and km > 0:
-            desc = str(day.get("description") or "")
+        raw = day.get("run")
+        if kind in {"easy", "long"} and km > 0 and isinstance(raw, dict):
+            desc = RunSession.from_dict(raw).to_intervals_description(anchors)
             assert "Pace" in desc, f"{day.get('date')}: expected Pace target"
             assert "% HR" not in desc, f"{day.get('date')}: must not use % HR for easy"
+            assert anchors.easy_pace_target() in desc
+            assert_description_follows_guide(desc)
             checked += 1
     assert checked >= 1
+
+
+def test_fixture_stride_session_round_trips_press_lap_and_reps() -> None:
+    """Round-trip a press-lap + repeat stride structure from the fixture.
+
+    Purpose:
+        Watch-friendly stride *shape* (open lap rest, Nx inner steps).
+
+    Remove when:
+        Stride watch structure is redesigned.
+    """
+    week = load_week(WEEKS / "valid-week.json", root=FIXTURES)
+    anchors = load_athlete_anchors("athletes/sample.json", root=FIXTURES)
+    stride_days = []
+    for day in week.get("days") or []:
+        if not isinstance(day, dict):
+            continue
+        name = str(day.get("run_name") or "").lower()
+        if "stride" in name and isinstance(day.get("run"), dict):
+            stride_days.append(day)
+    assert stride_days, "fixture week should include at least one stride session"
+    for day in stride_days:
+        session = RunSession.from_dict(day["run"])
+        assert session.has_press_lap()
+        desc = session.to_intervals_description(anchors)
+        assert "Press lap" in desc
+        assert "x\n" in desc or "\nx" in desc or "4x" in desc
+        assert_description_follows_guide(desc)
 
 
 def test_copy_paste_summary_appends_strides() -> None:
@@ -103,7 +111,11 @@ def test_copy_paste_summary_appends_strides() -> None:
     Remove when:
         Copy-paste summary no longer lists day sessions.
     """
-    week = load_week(FIXTURES / "valid-week.json")
-    text = render_week_markdown(week, source_name="valid-week.json")
+    week = load_week(WEEKS / "valid-week.json", root=FIXTURES)
+    anchors = load_athlete_anchors("athletes/sample.json", root=FIXTURES)
+    text = render_week_markdown(
+        week, source_name="valid-week.json", anchors=anchors
+    )
     assert "12k easy + strides" in text
     assert "12 easy + strides" in text
+    assert "Press lap" in text

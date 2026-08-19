@@ -8,7 +8,7 @@ import pytest
 
 from running.paths import repo_root
 from running.schema_io import load, validate
-from running.week_plan import load_week, sum_run_km
+from running.week import load_week, sum_run_km
 
 ROOT = repo_root()
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "weeks"
@@ -30,7 +30,7 @@ def test_valid_fixture_matches_schema() -> None:
     Purpose:
         Other tests load this file; it must pass schema and totals.
     """
-    week = load_week(FIXTURES / "valid-week.json")
+    week = load_week(FIXTURES / "valid-week.json", root=FIXTURES.parent)
     assert week["run_total_km"] == 42
 
 
@@ -46,7 +46,7 @@ def test_mismatched_fixture_fails_arithmetic_not_schema() -> None:
     data = load(FIXTURES / "mismatched-total-week.json", "week")
     assert data["run_total_km"] == 99
     with pytest.raises(ValueError, match="run_total_km"):
-        load_week(FIXTURES / "mismatched-total-week.json")
+        load_week(FIXTURES / "mismatched-total-week.json", root=FIXTURES.parent)
 
 
 def test_validate_rejects_unknown_run_kind() -> None:
@@ -62,6 +62,41 @@ def test_validate_rejects_unknown_run_kind() -> None:
                 "run_total_km": 0,
                 "days": [
                     {"date": "2026-09-07", "run_km": 0, "run_kind": "sprint"}
+                ],
+            },
+            "week",
+        )
+
+
+def test_athlete_template_matches_schema() -> None:
+    """The athlete JSON scaffold must stay schema-valid.
+
+    Purpose:
+        Copy-paste athlete sidecar must pass ``schemas/athlete.schema.json``.
+    """
+    data = load(ROOT / "templates" / "athlete.json", "athlete")
+    assert data["slug"]
+    assert data["easy_pace_ceiling"]
+    assert data["easy_pace_floor"]
+
+
+def test_running_day_requires_run_object() -> None:
+    """Refuse a positive ``run_km`` without a structured ``run`` session.
+
+    Purpose:
+        Week JSON must not store workouts only as Intervals description text.
+    """
+    with pytest.raises(ValueError):
+        validate(
+            {
+                "week_start": "2026-09-07",
+                "run_total_km": 10,
+                "days": [
+                    {
+                        "date": "2026-09-07",
+                        "run_km": 10,
+                        "run_kind": "easy",
+                    }
                 ],
             },
             "week",
